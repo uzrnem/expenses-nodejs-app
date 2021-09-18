@@ -2,19 +2,19 @@ const express = require('express')
 const router = express.Router()
 const tagController = require('../controllers/tag.controller');
 
-// Retrieve all employees
+// Retrieve all tags
 router.get('/', tagController.findAll);
 
-// Create a new employee
+// Create a new tag
 router.post('/', tagController.create);
 
-// Retrieve a single employee with id
+// Retrieve a single tag with id
 router.get('/:id', tagController.findById);
 
-// Update a employee with id
+// Update a tag with id
 router.put('/:id', tagController.update);
 
-// Delete a employee with id
+// Delete a tag with id
 router.delete('/:id', tagController.delete);
 
 router.get('/transactions/:from/:to', tagController.transactionTypes);

@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 
 // create express app
 const app = express();
@@ -20,7 +19,7 @@ app.use('/transaction_types', require('./src/routes/transaction_type.routes'));
 app.use('/', express.static('public'));
 
 // listen for requests
-const port = process.env.PORT || 9001;
+const port = process.env.PORT || 9000;
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });

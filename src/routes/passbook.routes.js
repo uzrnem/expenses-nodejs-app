@@ -2,19 +2,19 @@ const express = require('express')
 const router = express.Router()
 const passbookController = require('../controllers/passbook.controller');
 
-// Retrieve all employees
+// Retrieve all passbooks
 router.get('/', passbookController.findAll);
 
-// Create a new employee
+// Create a new passbook
 router.post('/', passbookController.create);
 
-// Retrieve a single employee with id
+// Retrieve a single passbook with id
 router.get('/:id', passbookController.findById);
 
-// Update a employee with id
+// Update a passbook with id
 router.put('/:id', passbookController.update);
 
-// Delete a employee with id
+// Delete a passbook with id
 router.delete('/:id', passbookController.delete);
 
 router.get('/accounts/:account_id', passbookController.accounts);
