@@ -158,7 +158,7 @@ Activity.log = function(data, result) {
       var _sql = await config.query ( sql );
       var _count = await config.query ( count );
       var _sum = await config.query ( sum );
-      result ({ list: _sql, total: _count[0]['count'], sum: _sum[0]['sum'] });
+      result (null, { list: _sql, total: _count[0]['count'], sum: _sum[0]['sum'] });
     } finally {
       return
     }

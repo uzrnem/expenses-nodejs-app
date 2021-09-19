@@ -128,7 +128,7 @@ Account.share = function(result) {
       cc_array.push(['Loan', loan])
       cc_array.push(['CC Bill', ccBill])
       cc_array.push(['Balance', total])
-      result({ holding: holding_array, balance: account_balance, totalBalance: cc_array });
+      result(null, { holding: holding_array, balance: account_balance, totalBalance: cc_array });
     } finally {
     }
   })()
@@ -157,27 +157,15 @@ Account.expenses = function(year, month, result) {
 
       var total = 0.0
       holding_array = [['Tag', 'Amount']]
-      console.log(holding_balance)
       holding_balance.forEach((item, i) => {
         holding_array.push([item['tag'], item['amount']])
         total = total + item['amount'];
       });
-      result({ holding: holding_array, expenses: total, months: months });
+      result(null, { holding: holding_array, expenses: total, months: months });
+      return;
     } finally {
     }
   })()
 };
-/*  months_sql =
-  months = ApplicationRecord.connection.exec_query(months_sql)
 
-  total = 0.0
-  array = holding_balance.rows
-  array.each_with_index {|val, index|
-    total += val[1].to_f
-    array[index][1] = val[1].to_f
-  }
-  array.unshift(holding_balance.columns)
-  render json:
-end
-*/
 module.exports = Account;

@@ -333,7 +333,7 @@
         getActivities: function() {
           axios.get('activities/passbook/log', { params: this.transaction })
           .then((response) => {
-            this.activities = response.data;
+            this.activities = response.data.data;
             listCount = this.activities.total;
             pageWeight = this.transaction.page_size;
             b = listCount % pageWeight;

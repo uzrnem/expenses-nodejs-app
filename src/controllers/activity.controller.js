@@ -90,7 +90,8 @@ exports.log = function(req, res) {
       res.send(err);
     res.json({
       error: false,
-      message: 'Activity successfully deleted'
+      data: activity,
+      message: 'Activity logs successfully returned'
     });
   });
 };

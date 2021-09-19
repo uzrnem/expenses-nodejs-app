@@ -96,8 +96,9 @@ exports.share = function(req, res) {
 exports.expenses = function(req, res) {
   console.log('Account Controller: chart.expenses call');
   Account.expenses(req.params.year, req.params.month, function(err, account) {
-    if (err)
+    if (err) {
       res.send(err);
+    }
     res.send(account);
   });
 };
