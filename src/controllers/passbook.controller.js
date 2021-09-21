@@ -5,9 +5,11 @@ const Passbook = require('../models/passbook.model');
 exports.findAll = function(req, res) {
   console.log('Passbook Controller: List call')
   Passbook.findAll(function(err, passbook) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(passbook);
+    } else {
+      res.json(passbook);
+    }
   });
 };
 
@@ -23,13 +25,15 @@ exports.create = function(req, res) {
     });
   } else {
     Passbook.create(new_passbook, function(err, passbook) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: "Passbook added successfully!",
-        data: passbook
-      });
+      } else {
+        res.json({
+          error: false,
+          message: "Passbook added successfully!",
+          data: passbook
+        });
+      }
     });
   }
 };
@@ -37,9 +41,11 @@ exports.create = function(req, res) {
 exports.findById = function(req, res) {
   console.log('Passbook Controller: Get call')
   Passbook.findById(req.params.id, function(err, passbook) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(passbook);
+    } else {
+      res.json(passbook);
+    }
   });
 };
 
@@ -52,12 +58,14 @@ exports.update = function(req, res) {
     });
   } else {
     Passbook.update(req.params.id, new Passbook(req.body), function(err, passbook) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: 'Passbook successfully updated'
-      });
+      } else {
+        res.json({
+          error: false,
+          message: 'Passbook successfully updated'
+        });
+      }
     });
   }
 };
@@ -65,20 +73,24 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   console.log('Passbook Controller: Delete call')
   Passbook.delete(req.params.id, function(err, passbook) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      message: 'Passbook successfully deleted'
-    });
+    } else {
+      res.json({
+        error: false,
+        message: 'Passbook successfully deleted'
+      });
+    }
   });
 };
 
 exports.accounts = function(req, res) {
   console.log('Passbook Controller: accounts call')
   Passbook.accounts(req.params.account_id, function(err, passbook) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(passbook);
+    } else {
+      res.json(passbook);
+    }
   });
 };

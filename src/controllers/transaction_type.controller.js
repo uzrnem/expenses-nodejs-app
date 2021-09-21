@@ -5,9 +5,11 @@ const TransactionType = require('../models/transaction_type.model');
 exports.findAll = function(req, res) {
   console.log('TransactionType Controller: List call')
   TransactionType.findAll(function(err, transactionType) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(transactionType);
+    } else {
+      res.send(transactionType);
+    }
   });
 };
 
@@ -23,13 +25,15 @@ exports.create = function(req, res) {
     });
   } else {
     TransactionType.create(new_transactionType, function(err, transactionType) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: "TransactionType added successfully!",
-        data: transactionType
-      });
+      } else {
+        res.json({
+          error: false,
+          message: "TransactionType added successfully!",
+          data: transactionType
+        });
+      }
     });
   }
 };
@@ -37,9 +41,11 @@ exports.create = function(req, res) {
 exports.findById = function(req, res) {
   console.log('TransactionType Controller: Get call')
   TransactionType.findById(req.params.id, function(err, transactionType) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(transactionType);
+    } else {
+      res.json(transactionType);
+    }
   });
 };
 
@@ -52,12 +58,14 @@ exports.update = function(req, res) {
     });
   } else {
     TransactionType.update(req.params.id, new TransactionType(req.body), function(err, transactionType) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: 'TransactionType successfully updated'
-      });
+      } else {
+        res.json({
+          error: false,
+          message: 'TransactionType successfully updated'
+        });
+      }
     });
   }
 };
@@ -65,11 +73,13 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   console.log('TransactionType Controller: Delete call')
   TransactionType.delete(req.params.id, function(err, transactionType) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      message: 'TransactionType successfully deleted'
-    });
+    } else {
+      res.json({
+        error: false,
+        message: 'TransactionType successfully deleted'
+      });
+    }
   });
 };

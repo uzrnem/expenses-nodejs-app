@@ -5,9 +5,11 @@ const AccountType = require('../models/account_type.model');
 exports.findAll = function(req, res) {
   console.log('AccountType Controller: List call')
   AccountType.findAll(function(err, accountType) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(accountType);
+    } else {
+      res.json(accountType);
+    }
   });
 };
 
@@ -23,13 +25,15 @@ exports.create = function(req, res) {
     });
   } else {
     AccountType.create(new_accountType, function(err, accountType) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: "AccountType added successfully!",
-        data: accountType
-      });
+      } else {
+        res.json({
+          error: false,
+          message: "AccountType added successfully!",
+          data: accountType
+        });
+      }
     });
   }
 };
@@ -37,9 +41,11 @@ exports.create = function(req, res) {
 exports.findById = function(req, res) {
   console.log('AccountType Controller: Get call')
   AccountType.findById(req.params.id, function(err, accountType) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(accountType);
+    } else {
+      res.json(accountType);
+    }
   });
 };
 
@@ -52,12 +58,14 @@ exports.update = function(req, res) {
     });
   } else {
     AccountType.update(req.params.id, new AccountType(req.body), function(err, accountType) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: 'AccountType successfully updated'
-      });
+      } else {
+        res.json({
+          error: false,
+          message: 'AccountType successfully updated'
+        });
+      }
     });
   }
 };
@@ -65,11 +73,13 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   console.log('AccountType Controller: Delete call')
   AccountType.delete(req.params.id, function(err, accountType) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      message: 'AccountType successfully deleted'
-    });
+    } else {
+      res.json({
+        error: false,
+        message: 'AccountType successfully deleted'
+      });
+    }
   });
 };

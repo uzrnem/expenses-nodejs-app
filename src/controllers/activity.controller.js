@@ -5,9 +5,11 @@ const Activity = require('../models/activity.model');
 exports.findAll = function(req, res) {
   console.log('Activity Controller: List call')
   Activity.findAll(function(err, activity) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(activity);
+    } else {
+      res.json(activity);
+    }
   });
 };
 
@@ -23,13 +25,15 @@ exports.create = function(req, res) {
     });
   } else {
     Activity.create(new_activity, function(err, activity) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: "Activity added successfully!",
-        data: activity
-      });
+      } else {
+        res.json({
+          error: false,
+          message: "Activity added successfully!",
+          data: activity
+        });
+      }
     });
   }
 };
@@ -37,9 +41,11 @@ exports.create = function(req, res) {
 exports.findById = function(req, res) {
   console.log('Activity Controller: Get call')
   Activity.findById(req.params.id, function(err, activity) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(activity);
+    } else {
+      res.json(activity);
+    }
   });
 };
 
@@ -52,12 +58,14 @@ exports.update = function(req, res) {
     });
   } else {
     Activity.update(req.params.id, new Activity(req.body), function(err, activity) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: 'Activity successfully updated'
-      });
+      } else {
+        res.json({
+          error: false,
+          message: 'Activity successfully updated'
+        });
+      }
     });
   }
 };
@@ -65,12 +73,14 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   console.log('Activity Controller: Delete call')
   Activity.delete(req.params.id, function(err, activity) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      message: 'Activity successfully deleted'
-    });
+    } else {
+      res.json({
+        error: false,
+        message: 'Activity successfully deleted'
+      });
+    }
   });
 };
 
@@ -86,12 +96,14 @@ exports.log = function(req, res) {
     page_index: req.query.page_index && req.query.page_index > 0 ? req.query.page_index : null,
     page_size: req.query.page_size && req.query.page_size > 0 ? req.query.page_size : null
   }, function(err, activity) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      data: activity,
-      message: 'Activity logs successfully returned'
-    });
+    } else {
+      res.json({
+        error: false,
+        data: activity,
+        message: 'Activity logs successfully returned'
+      });
+    }
   });
 };

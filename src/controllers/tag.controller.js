@@ -5,9 +5,11 @@ const Tag = require('../models/tag.model');
 exports.findAll = function(req, res) {
   console.log('Tag Controller: List call')
   Tag.findAll(function(err, tag) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(tag);
+    } else {
+      res.json(tag);
+    }
   });
 };
 
@@ -23,13 +25,15 @@ exports.create = function(req, res) {
     });
   } else {
     Tag.create(new_tag, function(err, tag) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: "Tag added successfully!",
-        data: tag
-      });
+      } else {
+        res.json({
+          error: false,
+          message: "Tag added successfully!",
+          data: tag
+        });
+      }
     });
   }
 };
@@ -37,9 +41,11 @@ exports.create = function(req, res) {
 exports.findById = function(req, res) {
   console.log('Tag Controller: Get call')
   Tag.findById(req.params.id, function(err, tag) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(tag);
+    } else {
+      res.json(tag);
+    }
   });
 };
 
@@ -52,12 +58,14 @@ exports.update = function(req, res) {
     });
   } else {
     Tag.update(req.params.id, new Tag(req.body), function(err, tag) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: 'Tag successfully updated'
-      });
+      } else {
+        res.json({
+          error: false,
+          message: 'Tag successfully updated'
+        });
+      }
     });
   }
 };
@@ -65,12 +73,14 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   console.log('Tag Controller: Delete call')
   Tag.delete(req.params.id, function(err, tag) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      message: 'Tag successfully deleted'
-    });
+    } else {
+      res.json({
+        error: false,
+        message: 'Tag successfully deleted'
+      });
+    }
   });
 };
 
@@ -79,15 +89,19 @@ exports.transactionTypes = function(req, res) {
   var tag_id = req.query.tag_id ? req.query.tag_id : null;
   if (tag_id) {
     Tag.getByParentTagId(tag_id, function(err, tag) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json(tag);
+      } else {
+        res.json(tag);
+      }
     });
   } else {
     Tag.transactionTypes(req.params.from, req.params.to, function(err, tag) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json(tag);
+      } else {
+        res.json(tag);
+      }
     });
   }
 };

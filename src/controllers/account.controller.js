@@ -6,18 +6,22 @@ exports.findAll = function(req, res) {
   var allAccounts = req.query.all_accounts ? true : false;
   console.log('Account Controller: List call, all_accounts:', allAccounts);
   Account.findAll(allAccounts, function(err, account) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(account);
+    } else {
+      res.json(account);
+    }
   });
 };
 
 exports.frequent = function(req, res) {
   console.log('Account Controller: frequent call');
   Account.frequent( function(err, account) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(account);
+    } else {
+      res.json(account);
+    }
   });
 };
 
@@ -33,13 +37,15 @@ exports.create = function(req, res) {
     });
   } else {
     Account.create(new_account, function(err, account) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: "Account added successfully!",
-        data: account
-      });
+      } else {
+        res.json({
+          error: false,
+          message: "Account added successfully!",
+          data: account
+        });
+      }
     });
   }
 };
@@ -47,9 +53,11 @@ exports.create = function(req, res) {
 exports.findById = function(req, res) {
   console.log('Account Controller: Get call')
   Account.findById(req.params.id, function(err, account) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(account);
+    } else {
+      res.json(account);
+    }
   });
 };
 
@@ -62,12 +70,14 @@ exports.update = function(req, res) {
     });
   } else {
     Account.update(req.params.id, new Account(req.body), function(err, account) {
-      if (err)
+      if (err) {
         res.send(err);
-      res.json({
-        error: false,
-        message: 'Account successfully updated'
-      });
+      } else {
+        res.json({
+          error: false,
+          message: 'Account successfully updated'
+        });
+      }
     });
   }
 };
@@ -75,21 +85,25 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   console.log('Account Controller: Delete call')
   Account.delete(req.params.id, function(err, account) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json({
-      error: false,
-      message: 'Account successfully deleted'
-    });
+    } else {
+      res.json({
+        error: false,
+        message: 'Account successfully deleted'
+      });
+    }
   });
 };
 
 exports.share = function(req, res) {
   console.log('Account Controller: chart.share call');
   Account.share( function(err, account) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.send(account);
+    } else {
+      res.json(account);
+    }
   });
 };
 
@@ -98,7 +112,8 @@ exports.expenses = function(req, res) {
   Account.expenses(req.params.year, req.params.month, function(err, account) {
     if (err) {
       res.send(err);
+    } else {
+      res.json(account);
     }
-    res.send(account);
   });
 };
