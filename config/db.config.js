@@ -1,19 +1,16 @@
 'user strict';
 
+const { DATABASE, USER, PASSWORD } = require('../env');
 const mysql = require('mysql');
 const util = require('util');
 
 //local mysql db connection
 const dbConn = mysql.createConnection({
   host     : 'localhost',
-  user     : 'root',
-  password : 'passworD!123',
-  database : 'expense',
-  dateStrings : true,
-  insecureAuth : true,
-  ssl  : {
-    rejectUnauthorized: false
-  }
+  user     : USER,
+  password : PASSWORD,
+  database : DATABASE,
+  dateStrings : true
 });
 dbConn.connect(function(err) {
   if (err) throw err;
