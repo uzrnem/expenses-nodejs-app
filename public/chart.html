@@ -113,8 +113,14 @@
     axios.get('accounts/chart/share')
     .then((response) => {
       var data = google.visualization.arrayToDataTable(response.data.holding);
+
+      totalAmount = 0
+      for (c = 1 ; response.data.holding.length > c; c++) {
+        totalAmount += response.data.holding[c][1]
+      }
+
       var options = {
-        title:'My Holdings', height: 300, pieSliceText: 'percentage', is3D: true,
+        title:'My Holdings of '+ totalAmount, height: 300, pieSliceText: 'percentage', is3D: true,
         chartArea: { width : '90%', height: '80%'}, legend: {
             position: 'labeled',
             labeledValueText: 'both',
@@ -161,7 +167,7 @@
         for (key in element) {
           let cell = row.insertCell();
           let span = document.createElement("SPAN");
-          console.log(key, element[key]);
+          //console.log(key, element[key]);
           if (key == 'balance') {
             if (element[key] > 0) {
               span.className = 't-blue';

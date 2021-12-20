@@ -36,7 +36,7 @@ Account.findById = function(id, result) {
 Account.findAll = function(allAccounts, result) {
   var condition = "";
   if ( allAccounts ) {
-    condition = " ORDER BY amount = 0 ASC, name ASC";
+    condition = " ORDER BY is_closed, account_type_id, amount = 0 ASC, name ASC";
   } else {
     condition = " WHERE is_closed = 0 ORDER BY name ASC";
   }

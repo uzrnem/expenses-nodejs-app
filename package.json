@@ -19,10 +19,9 @@
     "api",
     "restfulapi",
     "javascript",
-    "es6"
+    "expense"
   ],
   "author": "Bhagyesh Patel",
-  "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",

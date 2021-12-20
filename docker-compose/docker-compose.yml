@@ -1,0 +1,19 @@
+#docker-compose -f mysql-phpmyadmin.yml up -d
+
+version: '3.7'
+
+services:
+  db:
+    image: expense:latest
+    container_name: expenses
+    restart: unless-stopped
+    environment:
+      EXP_CONFIG_DATABASE_NAME: expense
+      EXP_CONFIG_USER_NAME: root
+      EXP_CONFIG_PASS_NAME: root
+
+    ports:
+      - "9000:9000"
+    expose:
+      # Opens port 3306 on the container
+      - "9000"

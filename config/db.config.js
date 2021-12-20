@@ -10,6 +10,7 @@ const dbConn = mysql.createConnection({
   user     : USER,
   password : PASSWORD,
   database : DATABASE,
+  port: 3306,
   dateStrings : true
 });
 dbConn.connect(function(err) {
