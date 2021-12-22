@@ -158,8 +158,9 @@
           <label for="remark">Remark:</label>
           <input type="text" class="form-control" id="remark" placeholder="Enter remark" v-model="form.remarks">
         </div>
-        <button class="btn btn-primary" v-on:click="processForm()">Submit</button>
-
+        <button class="btn btn-primary" v-on:click="processForm()">Submit and Clear</button>
+        <button class="btn btn-secondary" v-on:click="processHalfForm()">Submit and Clear Only Amount</button>
+        
       </div>
     </div>
     <div class="col col-md-6">
@@ -281,6 +282,22 @@
               sub_tag_id: 0,
               amount: null,
               event_date: new Date().toISOString().slice(0,10),
+              remarks: null
+            }
+            this.reloadAll();
+          });
+          console.log(this.form);
+        },
+        processHalfForm: function() {
+          axios.post('activities', this.form)
+          .then((response) => {
+            this.form = {
+              from_account_id: this.form.from_account_id,
+              to_account_id: this.form.to_account_id,
+              tag_id: this.form.tag_id,
+              sub_tag_id: this.form.sub_tag_id,
+              amount: null,
+              event_date: this.form.event_date,
               remarks: null
             }
             this.reloadAll();
