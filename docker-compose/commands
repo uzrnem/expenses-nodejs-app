@@ -1,5 +1,5 @@
-$ docker build . -t uzrnem
-$ docker run -d -p 8080:8080 --name rest-server uzrnem
+$ docker build . -t expense:1.0.0
+$ docker run -d -p 8080:8080 --name rest-server expense
 # RUN npm ci --only=production && npm cache clean --force
 
 docker save myusername/myproject:latest | gzip -c > myproject_img_bak20141103.tgz
