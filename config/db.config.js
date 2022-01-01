@@ -1,12 +1,12 @@
 'user strict';
 
-const { DATABASE, USER, PASSWORD } = require('../env');
+const { DATABASE, USER, PASSWORD, HOST } = require('../env');
 const mysql = require('mysql');
 const util = require('util');
 
 //local mysql db connection
 const dbConn = mysql.createConnection({
-  host     : 'localhost',
+  host     : HOST,
   user     : USER,
   password : PASSWORD,
   database : DATABASE,

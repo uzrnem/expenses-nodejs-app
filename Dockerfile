@@ -7,9 +7,9 @@ WORKDIR /app
 
 COPY package*.json /app/
 
-COPY config.docker.js /app/env.js
-
 RUN npm install
+
+COPY config.docker.js /app/env.js
 
 # Bundle app source
 COPY . /app
