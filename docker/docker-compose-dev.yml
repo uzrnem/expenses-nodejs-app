@@ -1,0 +1,22 @@
+#docker-compose -f docker/docker-compose-dev.yml up -d
+
+version: '3.7'
+
+services:
+  expense_test:
+    image: expense:test.0.0
+    container_name: test_expense
+    environment:
+      EXP_CONFIG_DATABASE_NAME: expense
+      EXP_CONFIG_USER_NAME: root
+      EXP_CONFIG_PASS_NAME: root
+      EXP_CONFIG_HOST_NAME: db
+      PORT: 9050
+    volumes:
+      - $HOME/uzrnem/expense/config:/app/config
+      - $HOME/uzrnem/expense/public:/app/public
+      - $HOME/uzrnem/expense/src:/app/src
+    ports:
+      - "9050:9050"
+    expose:
+      - "9050"

@@ -22,6 +22,7 @@ Open [http://localhost:9000](http://localhost:9000) to view it in the browser.
 
 ### Create Image
 `docker build . -t expense:1.0.0`
+`docker build -f docker/Dockerfile.dev -t expense:test.0.0 .`
 
 ### Create Container
 If Mysql is locally Installed

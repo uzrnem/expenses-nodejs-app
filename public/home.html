@@ -176,7 +176,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="passbook in activities.list">
+            <tr v-for="(passbook, i) in activities.list">
               <td></td>
               <td>
                 <p v-bind:class="[passbook.transaction_type === 'Income' ? 't-green' : 't-blue']">{{passbook.from_account || 'Credit'}}</p>
@@ -201,9 +201,14 @@
                 <span class="ml-auto t-high-blue pull-right">{{passbook.event_date}}</span>
               </td>
               <td>
-                <span v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</span>
-                <span v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</span>
-                <span v-else class="pull-right t-red negative-balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</span>
+                <p v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</p>
+                <p v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</p>
+                <p v-else class="pull-right t-red negative-balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</p>
+                <p v-if="passbook.isDelete != true" class="t-orange" style="cursor: pointer;" @click="deleteRecord(passbook, i)">Delete?</p>
+                <p v-if="passbook.isDelete == true">
+                  <span class="t-red" style="cursor: pointer;font-weight: bold;" @click="deleteRecordConfirm(passbook, i)">Confirm?</span>&nbsp;
+                  <span class="t-green" style="cursor: pointer;font-weight: bold;" @click="deleteRecordCancel(passbook, i)">Cancel?</span>
+                </p>
               </td>
               <td></td>
             </tr>
@@ -329,6 +334,20 @@
         changePage: function(n) {
           this.transaction.page_index = n;
           this.getActivities();
+        },
+        deleteRecord: function(passbook, i) {
+          this.activities.list[i].isDelete = true;
+          this.$forceUpdate();
+        },
+        deleteRecordCancel: function(passbook, i) {
+          passbook.isDelete = false;
+          this.$forceUpdate();
+        },
+        deleteRecordConfirm: function(passbook) {
+          axios.delete('activities/'+passbook.id)
+          .then((response) => {
+            this.getActivities();
+          });
         },
         getActivities: function() {
           axios.get('activities/passbook/log', { params: this.transaction })
