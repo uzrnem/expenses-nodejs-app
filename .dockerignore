@@ -1,3 +1,8 @@
 node_modules
 npm-debug.log
 env.js
+schema
+docker-compose
+Dockerfile
+README.md
+setup.sh

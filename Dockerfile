@@ -5,14 +5,14 @@ ENV NODE_ENV=production
 # Create app directory
 WORKDIR /app
 
-COPY package*.json /app/
+COPY package.json package.json
 
 RUN npm install
 
-COPY config.docker.js /app/env.js
+COPY config.docker.js env.js
 
 # Bundle app source
-COPY . /app
+COPY . .
 
 EXPOSE 9000
 

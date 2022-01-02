@@ -11,7 +11,3 @@ echo "	USER: '$username',"  >> 'env.js'
 echo "	PASSWORD: '$password'"  >> 'env.js'
 echo "};"  >> 'env.js'
 echo "Setup is completed..!"
-
-#read varname
-#	USER_NAME : "root",
-#	PASSWORD : "toor",

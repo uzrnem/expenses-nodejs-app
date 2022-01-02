@@ -13,6 +13,7 @@ const dbConn = mysql.createConnection({
   port: 3306,
   dateStrings : true
 });
+
 dbConn.connect(function(err) {
   if (err) throw err;
   console.log("Database Connected!");
