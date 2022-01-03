@@ -21,15 +21,14 @@ Open [http://localhost:9000](http://localhost:9000) to view it in the browser.
 ### Install using Docker
 
 ### Create Image
-`docker build . -t expense:1.0.0`
-`docker build -f docker/Dockerfile.dev -t expense:test.0.0 .`
+`docker build -f docker/Dockerfile -t expense:1.0.0 .`
 
 ### Create Container
 If Mysql is locally Installed
-`docker-compose -f docker-compose/docker-compose.yml up -d`
+`docker-compose -f docker/docker-compose.yml up -d`
 
 If not, then
-`docker-compose -f docker-compose/docker-compose-full.yml up -d`
+`docker-compose -f docker/docker-compose-full.yml up -d`
 
 ### If facing Issues with Mysql
 Try following commands

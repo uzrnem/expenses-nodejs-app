@@ -1,5 +1,5 @@
 'user strict';
-var config = require('./../../config/db.config');
+var config = require('./../db.config');
 
 var TransactionType = function(transactionType) {
   this.name = transactionType.name;

@@ -13,7 +13,6 @@ services:
       EXP_CONFIG_HOST_NAME: db
       PORT: 9050
     volumes:
-      - $HOME/uzrnem/expense/config:/app/config
       - $HOME/uzrnem/expense/public:/app/public
       - $HOME/uzrnem/expense/src:/app/src
     ports:

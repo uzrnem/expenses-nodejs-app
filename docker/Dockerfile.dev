@@ -9,8 +9,7 @@ COPY package.json package.json
 
 RUN npm install
 
-COPY config.docker.js env.js
-
+COPY docker/config.docker.js env.js
 COPY server.js server.js
 
 CMD [ "node", "server.js" ]

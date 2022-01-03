@@ -9,10 +9,10 @@ COPY package.json package.json
 
 RUN npm install
 
-COPY config.docker.js env.js
-
-# Bundle app source
-COPY . .
+COPY docker/config.docker.js env.js
+COPY server.js server.js
+COPY public public
+COPY src src
 
 EXPOSE 9000
 

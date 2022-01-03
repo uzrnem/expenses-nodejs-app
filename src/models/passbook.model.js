@@ -1,5 +1,5 @@
 'user strict';
-var config = require('./../../config/db.config');
+var config = require('./../db.config');
 
 var Passbook = function(passbook) {
   this.name = passbook.name;

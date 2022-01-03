@@ -1,5 +1,5 @@
 'user strict';
-var config = require('./../../config/db.config');
+var config = require('./../db.config');
 
 var Tag = function(tag) {
   this.name = tag.name;

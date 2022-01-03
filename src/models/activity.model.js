@@ -1,5 +1,5 @@
 'user strict';
-var config = require('./../../config/db.config');
+var config = require('./../db.config');
 
 var Activity = function(activity) {
   this.from_account_id = activity.from_account_id;
