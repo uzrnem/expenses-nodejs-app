@@ -3,7 +3,6 @@ var config = require('./../db.config');
 
 var AccountType = function(accountType) {
   this.name = accountType.name;
-  this.slug = accountType.slug;
   this.created_at = new Date();
   this.updated_at = new Date();
 };
@@ -39,7 +38,7 @@ AccountType.findAll = function(result) {
   });
 };
 AccountType.update = function(id, accountType, result) {
-  config.con.query("UPDATE account_types SET name=?,slug=? WHERE id = ?", [accountType.name, accountType.slug, id],
+  config.con.query("UPDATE account_types SET name=? WHERE id = ?", [accountType.name, id],
     function(err, res) {
       if (err) {
         console.error("error: ", err);

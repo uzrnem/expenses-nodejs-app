@@ -3,7 +3,6 @@ var config = require('./../db.config');
 
 var Passbook = function(passbook) {
   this.name = passbook.name;
-  this.slug = passbook.slug;
   this.passbook_type_id = passbook.passbook_type_id;
   this.amount = passbook.amount;
   this.is_frequent = passbook.is_frequent ? passbook.is_frequent : false;
@@ -44,8 +43,8 @@ Passbook.findAll = function(result) {
   });
 };
 Passbook.update = function(id, passbook, result) {
-  config.con.query("UPDATE passbooks SET name=?,slug=?,passbook_type_id=?,amount=?,is_frequent=?,is_snapshot_disable=?,is_closed=? WHERE id = ?",
-    [passbook.name, passbook.slug, passbook.passbook_type_id, passbook.amount
+  config.con.query("UPDATE passbooks SET name=?,passbook_type_id=?,amount=?,is_frequent=?,is_snapshot_disable=?,is_closed=? WHERE id = ?",
+    [passbook.name, passbook.passbook_type_id, passbook.amount
       , passbook.is_frequent, passbook.is_snapshot_disable, passbook.is_closed, id],
     function(err, res) {
       if (err) {
@@ -71,7 +70,7 @@ Passbook.accounts = function(id, result) {
   " ct.name as current_account, p.previous_balance, p.balance, tt.name as transaction_type, " +
   " CASE " +
   "  WHEN ot.name is null THEN tg.name " +
-  "  WHEN tt.slug = 'credit' THEN CONCAT(tg.name, ' from ', ot.name) " +
+  "  WHEN tt.name = 'Credit' THEN CONCAT(tg.name, ' from ', ot.name) " +
   "  ELSE CONCAT(tg.name, ' to ', ot.name) " +
   " END as comment, tg.name as tag_name, t.amount, t.event_date, ot.name as opposite_account, t.remarks " +
   " from passbooks p " +
@@ -79,7 +78,7 @@ Passbook.accounts = function(id, result) {
   " left join activities t on p.activity_id = t.id " +
   " left join tags tg on t.tag_id = tg.id " +
   " left join accounts ct on p.account_id = ct.id " +
-  " left join accounts ot on (tt.slug = 'credit' and t.from_account_id = ot.id) or (tt.slug = 'debit' and t.to_account_id = ot.id) " +
+  " left join accounts ot on (tt.name = 'Credit' and t.from_account_id = ot.id) or (tt.name = 'Debit' and t.to_account_id = ot.id) " +
   " where p.account_id = "
   config.con.query( sql + id + ' ORDER BY `t`.`event_date` DESC, `p`.`id` DESC LIMIT 15', function(err, res) {
     if (err) {

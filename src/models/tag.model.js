@@ -3,7 +3,6 @@ var config = require('./../db.config');
 
 var Tag = function(tag) {
   this.name = tag.name;
-  this.slug = tag.slug;
   this.tag_id = tag.tag_id;
   this.transaction_type_id = tag.transaction_type_id;
   this.created_at = new Date();
@@ -20,6 +19,7 @@ Tag.create = function(newTag, result) {
     }
   });
 };
+
 Tag.findById = function(id, result) {
   config.con.query("Select * from tags where id = ? ", id, function(err, res) {
     if (err) {
@@ -30,8 +30,14 @@ Tag.findById = function(id, result) {
     }
   });
 };
-Tag.findAll = function(result) {
-  config.con.query("Select * from tags order by name ASC", function(err, res) {
+
+Tag.findAll = function(parentTag, result) {
+  sqlQuery = "Select * from tags order by name ASC";
+  if (parentTag != "0" && parentTag != 0) {
+    console.log(parentTag)
+    sqlQuery = "Select * from tags where " + parentTag + " in (id, tag_id) order by name ASC";
+  }
+  config.con.query(sqlQuery, function(err, res) {
     if (err) {
       console.error("error: ", err);
       result(err, null);
@@ -40,9 +46,10 @@ Tag.findAll = function(result) {
     }
   });
 };
+
 Tag.update = function(id, tag, result) {
-  config.con.query("UPDATE tags SET name=?,slug=?,tag_id=?,transaction_type_id=? WHERE id = ?",
-    [tag.name, tag.slug, tag.tag_id, tag.transaction_type_id, id],
+  config.con.query("UPDATE tags SET name=?,tag_id=?,transaction_type_id=? WHERE id = ?",
+    [tag.name, tag.tag_id, tag.transaction_type_id, id],
     function(err, res) {
       if (err) {
         console.error("error: ", err);
@@ -62,6 +69,7 @@ Tag.delete = function(id, result) {
     }
   });
 };
+
 Tag.transactionTypes = function(from, to, result) {
   var id = 1
   if (!from || from == 0 || from == '0') {
@@ -79,6 +87,7 @@ Tag.transactionTypes = function(from, to, result) {
     }
   });
 };
+
 Tag.getByParentTagId = function(tagId, result) {
   config.con.query("Select * from tags where tag_id = ? ", tagId, function(err, res) {
     if (err) {

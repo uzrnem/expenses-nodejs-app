@@ -3,7 +3,6 @@ var config = require('./../db.config');
 
 var Account = function(account) {
   this.name = account.name;
-  this.slug = account.slug;
   this.account_type_id = account.account_type_id;
   this.amount = account.amount;
   this.is_frequent = account.is_frequent ? account.is_frequent : false;
@@ -60,8 +59,8 @@ Account.frequent = function(result) {
   });
 };
 Account.update = function(id, account, result) {
-  config.con.query("UPDATE accounts SET name=?,slug=?,account_type_id=?,amount=?,is_frequent=?,is_snapshot_disable=?,is_closed=? WHERE id = ?",
-    [account.name, account.slug, account.account_type_id, account.amount
+  config.con.query("UPDATE accounts SET name=?,account_type_id=?,amount=?,is_frequent=?,is_snapshot_disable=?,is_closed=? WHERE id = ?",
+    [account.name, account.account_type_id, account.amount
       , account.is_frequent, account.is_snapshot_disable, account.is_closed, id],
     function(err, res) {
       if (err) {

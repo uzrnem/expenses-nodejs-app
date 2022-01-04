@@ -4,7 +4,8 @@ const Tag = require('../models/tag.model');
 
 exports.findAll = function(req, res) {
   console.log('Tag Controller: List call')
-  Tag.findAll(function(err, tag) {
+  var parentTag = req.query.parentTag ? req.query.parentTag : 0;
+  Tag.findAll(parentTag, function(err, tag) {
     if (err) {
       res.send(err);
     } else {

@@ -3,7 +3,6 @@ var config = require('./../db.config');
 
 var TransactionType = function(transactionType) {
   this.name = transactionType.name;
-  this.slug = transactionType.slug;
   this.created_at = new Date();
   this.updated_at = new Date();
 };
@@ -39,7 +38,7 @@ TransactionType.findAll = function(result) {
   });
 };
 TransactionType.update = function(id, transactionType, result) {
-  config.con.query("UPDATE transaction_types SET name=?,slug=? WHERE id = ?", [transactionType.name, transactionType.slug, id],
+  config.con.query("UPDATE transaction_types SET name=? WHERE id = ?", [transactionType.name, id],
     function(err, res) {
       if (err) {
         console.error("error: ", err);
