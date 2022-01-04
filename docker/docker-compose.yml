@@ -1,17 +1,22 @@
-#docker-compose -f mysql-phpmyadmin.yml up -d
+#docker-compose -d
 
 version: '3.7'
 
 services:
-  db:
-    image: expense:latest
+  expense:
+    image: expense:1.0.0
     container_name: expenses
-    restart: unless-stopped
     environment:
       EXP_CONFIG_DATABASE_NAME: expense
       EXP_CONFIG_USER_NAME: root
       EXP_CONFIG_PASS_NAME: root
+      EXP_CONFIG_HOST_NAME: mysqldb
     ports:
       - "9000:9000"
     expose:
       - "9000"
+    networks:
+      - docker-compose-files_mysql-database
+networks:
+  docker-compose-files_mysql-database:
+    external: true

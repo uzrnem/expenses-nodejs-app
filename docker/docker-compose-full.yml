@@ -1,13 +1,8 @@
 #docker-compose -f docker-compose-full.yml up -d
-
 version: '3.7'
 
-networks:
-  app-tier:
-    driver: bridge
-
 services:
-  db:
+  mysqldb:
     image: mysql:8.0.27
     container_name: mysql
     restart: always #restart: unless-stopped
@@ -19,36 +14,40 @@ services:
     expose:
       - "3306"
     networks:
-      - app-tier
+      - mysql-database
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5.1.1
     container_name: mysqladmin
     links:
-      - db
+      - mysqldb
     environment:
-      PMA_HOST: db
+      PMA_HOST: mysqldb
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: root
     ports:
       - "8000:80"
     networks:
-      - app-tier
+      - mysql-database
 
   expense:
     depends_on:
-      - db
+      - mysqldb
     image: expense:1.0.0
     container_name: expenses
     environment:
       EXP_CONFIG_DATABASE_NAME: expense
       EXP_CONFIG_USER_NAME: root
       EXP_CONFIG_PASS_NAME: root
-      EXP_CONFIG_HOST_NAME: db
+      EXP_CONFIG_HOST_NAME: mysqldb
     ports:
       - "9000:9000"
     expose:
       - "9000"
     networks:
-      - app-tier
+      - mysql-database
+
+networks:
+  mysql-database:
+    driver: bridge
