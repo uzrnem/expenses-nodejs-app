@@ -136,6 +136,8 @@
       <div class="col-9">
         <div class="pull-right">
           <span>Find Tags</span>
+          <td><a class="btn btn-warning" @click="parentModelKey=0; getSearchTags(parentModelKey)" style="cursor: pointer;"
+            >x</a></td>
         </div>
       </div>
       <div class="col-3">
@@ -162,11 +164,14 @@
           <tbody>
             <tr v-for="tag in tags">
               <td></td>
-              <td><span class="t-orange">{{tag.name}}</span></td>
+              <td><a class="t-orange" @click="parentModelKey=tag.id; getSearchTags(parentModelKey)" style="cursor: pointer;"
+                >{{tag.name}}</a></td>
               <td><span class="t-orange">{{transactionTypes[tag.transaction_type_id]}}</span></td>
-              <td><span class="t-orange">{{parentTags[tag.tag_id] || '---'}}</span></td>
+              <td><a class="t-orange" @click="parentModelKey=(tag.tag_id || 0); getSearchTags(parentModelKey)" style="cursor: pointer;"
+                >{{parentTags[tag.tag_id] || '---'}}</a></td>
               <td>
-                <a class="btn btn-primary" style="padding:0rem .75rem" href="#transaction-app" @click="editRecord(tag)">Edit</a>
+                <a class="btn btn-warning" style="padding:0rem .75rem" href="#transaction-app" @click="editRecord(tag)">Edit</a>
+                <a class="btn btn-danger" style="padding:0rem .75rem" href="#transaction-app" @click="deleteRecord(tag)">Delete</a>
               </td>
               <td></td>
             </tr>
@@ -239,6 +244,10 @@
         editRecord: function(item) {
             this.model = { ...item };
             this.editId = item.id;
+        },
+        deleteRecord: function(item) {
+          axios.delete('/tags/'+item.id )
+            .then((response) => { this.clear(false); });
         },
         clear(clearOnlyTagName) {
           if (clearOnlyTagName) {

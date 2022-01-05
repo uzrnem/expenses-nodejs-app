@@ -7,8 +7,8 @@ WORKDIR /app
 
 COPY package.json package.json
 
-RUN npm install
-
+#RUN npm install
+COPY node_modules node_modules
 COPY docker/config.docker.js env.js
 COPY server.js server.js
 

@@ -6,7 +6,7 @@ services:
     image: expense:dev
     container_name: expenses_dev
     environment:
-      EXP_CONFIG_DATABASE_NAME: testexp
+      EXP_CONFIG_DATABASE_NAME: expense
       EXP_CONFIG_USER_NAME: root
       EXP_CONFIG_PASS_NAME: root
       EXP_CONFIG_HOST_NAME: mysqldb
