@@ -3,8 +3,6 @@ var config = require('./../db.config');
 
 var AccountType = function(accountType) {
   this.name = accountType.name;
-  this.created_at = new Date();
-  this.updated_at = new Date();
 };
 
 AccountType.create = function(newAccountType, result) {

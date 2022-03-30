@@ -49,6 +49,9 @@
         <li class="nav-item">
           <a class="nav-link" href="tag.html">Tag</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
+        </li>
       </ul>
     </div>
   </nav>
@@ -70,6 +73,8 @@
   google.charts.load('visualization', "1", {'packages':['corechart']}); //current
   google.charts.setOnLoadCallback(drawChart);
 
+  var format = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
+
   var dateToday = new Date();
   var urlString = dateToday.getFullYear() + "/" + ( dateToday.getMonth() + 1);
   // Draw the chart and set the chart values
@@ -78,7 +83,7 @@
     .then((response) => {
       var data = google.visualization.arrayToDataTable(response.data.holding);
       var options = {
-        title:'My Expenses of ' + Number(response.data.expenses).toLocaleString('en') + ' Rs.', height: 600, pieSliceText: 'percentage', is3D: true,
+        title:'My Expenses of ' + format.format(response.data.expenses), height: 600, pieSliceText: 'percentage', is3D: true,
         chartArea: { width : '90%', height: '80%'}, legend: {
             position: 'labeled',
             labeledValueText: 'both',

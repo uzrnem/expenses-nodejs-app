@@ -17,6 +17,6 @@ router.put('/:id', tagController.update);
 // Delete a tag with id
 router.delete('/:id', tagController.delete);
 
-router.get('/transactions/:from/:to', tagController.transactionTypes);
+router.get('/transactions/hits', tagController.transactionTypes);
 
 module.exports = router

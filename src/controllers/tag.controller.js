@@ -87,22 +87,13 @@ exports.delete = function(req, res) {
 
 exports.transactionTypes = function(req, res) {
   console.log('Tag Controller: Transaction Types call')
-  var tag_id = req.query.tag_id ? req.query.tag_id : null;
-  if (tag_id) {
-    Tag.getByParentTagId(tag_id, function(err, tag) {
-      if (err) {
-        res.send(err);
-      } else {
-        res.json(tag);
-      }
-    });
-  } else {
-    Tag.transactionTypes(req.params.from, req.params.to, function(err, tag) {
-      if (err) {
-        res.send(err);
-      } else {
-        res.json(tag);
-      }
-    });
-  }
+  Tag.transactionTypes(req.query.from_account_id,
+    req.query.to_account_id,
+    req.query.tag_id, function(err, tag) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(tag);
+    }
+  });
 };

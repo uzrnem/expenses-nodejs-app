@@ -60,9 +60,6 @@
   .t-orange {
     color: #4a2d03; /*tag*/
   }
-  .balance-amount:before {
-    content: "\20B9" " ";
-  }
   .navbar {
     margin-bottom: 1rem !important;
   }
@@ -94,6 +91,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="tag.html">Tag</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
         </li>
       </ul>
     </div>
@@ -168,7 +168,7 @@
             <tr v-for="account in accounts">
               <td></td>
               <td><span class="t-orange">{{account.name}}</span></td>
-              <td><span class="t-orange">{{account.amount}}</span></td>
+              <td><span class="t-orange pull-right">{{format.format(account.amount)}}</span></td>
               <td><span class="t-orange">{{accountTypes[account.account_type_id]}}</span></td>
               <td><span class="t-orange">{{account.is_frequent ? 'True' : 'False'}}</span></td>
               <td><span class="t-orange">{{account.is_snapshot_disable ? 'True' : 'False'}}</span></td>
@@ -197,7 +197,8 @@
         editId: null,
         model: {},
         accounts: [],
-        accountTypes: []
+        accountTypes: [],
+        format: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
       },
       created() {
           console.log('Component has been created!');

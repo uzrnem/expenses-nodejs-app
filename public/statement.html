@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Expenze | Statement</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./bootstrap.min.css">
+  <link rel="stylesheet" href="./bulma2.css">
+  <script src="./jquery.min.js"></script>
+  <script src="./axios.min.js"></script>
+  <script src="./bootstrap.min.js"></script>
+  <script src="vue-2.6.12.js"></script>
+  <style>
+  body {
+    background-color: #eeeeee;
+    font-size: 17px;
+  }
+  p {
+    margin: 0 !important;
+  }
+  :root {
+    --padding-x-table: 20px;
+  }
+  .table>thead>tr>th {
+    padding-left: var(--padding-x-table);
+    padding-right: var(--padding-x-table);
+  }
+  .table>tbody>tr>td {
+    padding: 0rem var(--padding-x-table);
+    
+  }
+  .pull-left {
+    float: left;
+  }
+  .pull-right {
+    float: right;
+  }
+  .font-14 {
+    font-size: 14px;
+  }
+  .t-blue{
+    color: #0c3940; /* #0a2f35; */
+  }
+  .t-green{
+    color: #196642;
+  }
+  .t-red{
+    color: #791f06;
+  }
+  .t-orange {
+    color: #4a2d03; /*tag*/
+  }
+  .navbar {
+    margin-bottom: 1rem !important;
+  }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Expenze</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="home.html">Passbook</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="chart.html">Chart</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="expenses.html">Expenses</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="account.html">Accounts</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="tag.html">Tag</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="statement.html">Statement</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <div class="container" id="transaction-app">
+    <div class="row justify-content-md-center">
+      <div class="col-12">
+        <div class="pull-left">
+          <input class="form-check-input" type="checkbox" value="" id="customSwitches" v-model="showCardView" @change="clear()">
+          <label class="form-check-label" for="customSwitches">
+            Show Card View
+          </label>
+        </div>
+        <div class="pull-right" v-if="showCardView == true">
+          <label >Choose Monthly Statements Duration: 
+            <select id="duration-selection" v-model="duration" @click="getMonthlyStatement(duration)">
+              <option value="0">Overall</option>
+              <option value="1">Last year</option>
+              <option value="2">Last two years</option>
+              <option value="3">Last three years</option>
+              <option value="5">Last five years</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="col-12" v-if="showCardView == false">
+        <form>
+          <div class="form-row">
+            <div class="form-group col-3">
+              <label for="amount">Account</label>
+              <select class="form-control" v-model="model.account_id" @change="updateAmount($event)">
+                <option v-for="(item, key) in accounts" :value="item.id" v-bind:key="key"
+                >{{item.name}}: {{item.amount}}</option>
+              </select>
+            </div>
+            <div class="form-group col-2">
+              <label for="name">Amount</label>
+              <input type="text" class="form-control" placeholder="Amount"
+                v-model="model.amount">
+            </div>
+            <div class="form-group col-3">
+              <label for="name">Remark</label>
+              <input type="text" class="form-control" placeholder="Remark"
+                v-model="model.remarks">
+            </div>
+            <div class="form-group col-2">
+              <label>Start Date</label>
+              <input type="date" class="form-control" v-model="model.event_date">    
+            </div>
+            <div class="form-group col-2">
+              <div class="form-group">
+                <label for="amount">Save</label>
+                <button class="btn btn-primary" @click="save()">Save</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div class="col-3 mb-1 p-1" v-if="showCardView == true && mainCard">
+        <div class="card p-0">
+          <div class="card-header p-1">Overall</div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item p-1" v-if="mainCard.bills">
+                Credit Card Bill: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.totalBill/mainCard.salary[0].amount)*100)}} %)</span>
+                <span class="t-red pull-right">{{format.format(mainCard.totalBill)}}</span>
+                <ul class="list-group list-group-flush" v-if="mainCard.bills.length" style="font-size: small;">
+                  <li class="list-group-item p-0 t-high-blue" v-for="bill in mainCard.bills">
+                    {{bill.name}}
+                    <span class=" t-red pull-right">{{format.format(bill.bill)}}</span>
+                  </li>
+                </ul>
+              </li>
+              <li class="list-group-item p-1" v-if="mainCard.expense">
+                Expense:  <span class="t-orange" v-if="mainCard.expense[0] && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.expense[0].amount/mainCard.salary[0].amount)*100)}} %)</span>
+                <span class=" t-red pull-right">{{format.format(mainCard.expense[0].amount)}}</span>
+              </li>
+              <li class="list-group-item p-1" v-if="mainCard.salary">
+                Salary: 
+                <span class=" t-green pull-right">{{format.format(mainCard.salary[0].amount)}}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 mb-1 p-1" v-if="showCardView == true" v-for="st in monthlyStatements">
+        <div class="card p-0">
+          <div class="card-header p-1">{{st.mon}} {{st.year}}</div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item p-1" v-if="st.bill">
+                Credit Card Bill: <span class="t-orange" v-if="st.billPercent" style="font-size: small;">({{st.billPercent}} %)</span>
+                <span class=" t-red pull-right">{{format.format(st.bill)}}</span>
+                <ul class="list-group list-group-flush" v-if="st.bills.length" style="font-size: small;">
+                  <li class="list-group-item p-0 t-high-blue" v-for="bill in st.bills">
+                    {{bill.card}}
+                    <span class=" t-red pull-right">{{format.format(bill.bill)}}</span>
+                    <span class="t-orange">{{bill.remarks}}</span>
+                  </li>
+                </ul>
+              </li>
+              <li class="list-group-item p-1" v-if="st.expense">
+                Expense:  <span class="t-orange" v-if="st.expensePercent" style="font-size: small;">({{st.expensePercent}} %)</span>
+                <span class=" t-red pull-right">{{format.format(st.expense)}}</span>
+              </li>
+              <li class="list-group-item p-1" v-if="st.salary">
+                Salary: 
+                <span class=" t-green pull-right">{{format.format(st.salary)}}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12" v-if="showCardView == false">
+        <br />
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Account Name</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Remark</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="st in statements">
+              <td></td>
+              <td><a class="t-orange" style="cursor: pointer;"
+                >{{accountMap[st.account_id] || '---'}}</a></td>
+              <td class="pull-right r-red ">{{format.format(st.amount)}}</td>
+              <td>
+                <span class="ml-auto t-high-blue">{{st.event_date}}</span>
+              </td>
+              <td class="t-green">{{st.remarks}}</td>
+              <td>
+                <a class="btn btn-warning" style="padding:0rem .75rem" href="#transaction-app" @click="editRecord(st)">Edit</a>
+                <a class="btn btn-danger" style="padding:0rem .75rem" href="#transaction-app" @click="deleteRecord(st)">Delete</a>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="8" v-if="statements.length == 0">
+                <p class="t-blue text-center">No Records Found!</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+
+  <script>
+    var app = new Vue({
+      el: '#transaction-app',
+      data: {
+        editId: null,
+        model: {},
+        accountMap: {},
+        accounts: [],
+        statements: [],
+        duration: 1,
+        mainCard: {},
+        monthlyStatements: [],
+        showCardView: true,
+        format: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
+      },
+      created() {
+          console.debug('Component has been created!');
+      },
+      methods: {
+        updateAmount: function(event) {
+          var index = event.target.options.selectedIndex
+          var amount = this.accounts[index].amount
+          this.model.amount = 0 - amount
+        },
+        save: function() {
+          if (this.editId) {
+            axios.put('/statements/'+this.editId, this.model )
+            .then((response) => { this.clear(); });
+          } else {
+            console.debug(this.model)
+            axios.post('/statements', this.model )
+            .then((response) => { this.clear(); });
+          }
+        },
+        getStatement: function() {
+          axios.get('/statements')
+          .then((response) => {
+            this.statements = response.data;
+            console.debug(this.statements);
+          });
+        },
+        getMonthlyStatement: function(duration) {
+          axios.get('/statements/monthly/'+duration)
+          .then((response) => {
+            var totalBill = 0
+            response.data.bills.forEach((bill, billI) => {
+              totalBill += bill.bill
+            })
+            console.log(totalBill)
+            this.mainCard = {
+              title: ['some'],
+              totalBill: totalBill,
+              bills: response.data.bills,
+              expense: response.data.expense,
+              salary: response.data.salary
+            }
+            var res = response.data.result;
+            var arr = [];
+            res.forEach((item, index) => {
+              var bills = []
+              if (item.bill != null) {
+                var cards = item.credit.split(',');
+                console.debug("cards: ", cards)
+                cards.forEach((card, cardI) => {
+                  console.debug("card: ", card)
+                  var bill = card.split(':');
+                  bills.push({
+                    card: bill[0],
+                    bill: bill[1],
+                    remarks: bill[2]
+                  })
+                })
+                console.debug(bills)
+                item.bills = bills
+                if (item.salary != null) {
+                  item.billPercent = parseInt((item.bill/item.salary)*100)
+                }
+              }
+              if (item.expense != null & item.salary != null) {
+                item.expensePercent = parseInt((item.expense/item.salary)*100)
+              }
+              arr.push(item)
+            });
+            this.monthlyStatements = arr
+            console.debug(this.monthlyStatements);
+          });
+        },
+        getAccounts: function() {
+          axios.get('/accounts/type/Credit')
+          .then((response) => {
+            var res = response.data;
+            for (const item in res) {
+              this.accountMap[res[item].id] = res[item].name;
+            }
+            console.debug(this.accountMap)
+            this.accounts = res;
+          });
+        },
+        editRecord: function(item) {
+            this.model = { ...item };
+            this.editId = item.id;
+        },
+        deleteRecord: function(item) {
+          axios.delete('/statements/'+item.id )
+            .then((response) => { this.clear(false); });
+        },
+        clear() {
+          this.model = {
+            account_id: null,
+            amount: null,
+            event_date: new Date().toISOString().slice(0,10),
+            remarks: null
+          }
+          this.editId = null;
+          console.debug(309, this.showCardView)
+          if (this.showCardView == true) {
+            this.statements = []
+            this.getMonthlyStatement(this.duration);
+          } else {
+            this.monthlyStatements = []
+            this.getStatement();
+          }
+        }
+      },
+      mounted() {
+        console.debug('Component has been Mounted!');
+        this.clear();
+        this.getAccounts();
+      }
+    });
+  </script>
+</html>

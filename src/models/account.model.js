@@ -22,6 +22,7 @@ Account.create = function(newAccount, result) {
     }
   });
 };
+
 Account.findById = function(id, result) {
   config.con.query("Select * from accounts where id = ? ", id, function(err, res) {
     if (err) {
@@ -32,6 +33,7 @@ Account.findById = function(id, result) {
     }
   });
 };
+
 Account.findAll = function(allAccounts, result) {
   var condition = "";
   if ( allAccounts ) {
@@ -48,6 +50,7 @@ Account.findAll = function(allAccounts, result) {
     }
   });
 };
+
 Account.frequent = function(result) {
   config.con.query("Select * from accounts WHERE is_closed = 0 AND is_frequent = 1 ORDER BY name ASC", function(err, res) {
     if (err) {
@@ -58,6 +61,20 @@ Account.frequent = function(result) {
     }
   });
 };
+
+Account.findByType = function(account_type, result) {
+  var sql = "Select * from accounts WHERE account_type_id in ( " +
+  "SELECT id FROM account_types where name = '"+ account_type +"')";
+  config.con.query(sql, function(err, res) {
+    if (err) {
+      console.error("error: ", err);
+      result(err, null);
+    } else {
+      result(null, res);
+    }
+  });
+};
+
 Account.update = function(id, account, result) {
   config.con.query("UPDATE accounts SET name=?,account_type_id=?,amount=?,is_frequent=?,is_snapshot_disable=?,is_closed=? WHERE id = ?",
     [account.name, account.account_type_id, account.amount
@@ -71,6 +88,7 @@ Account.update = function(id, account, result) {
       }
     });
 };
+
 Account.delete = function(id, result) {
   config.con.query("DELETE FROM accounts WHERE id = ?", [id], function(err, res) {
     if (err) {
@@ -81,6 +99,7 @@ Account.delete = function(id, result) {
     }
   });
 };
+
 Account.share = function(result) {
   (async () => {
     try {

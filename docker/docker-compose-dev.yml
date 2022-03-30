@@ -3,7 +3,7 @@ version: '3.7'
 
 services:
   expense_dev:
-    image: expense:dev
+    image: expense:dev-1.0.1
     container_name: expenses_dev
     environment:
       EXP_CONFIG_DATABASE_NAME: expense
@@ -14,12 +14,15 @@ services:
     volumes:
       - $HOME/uzrnem/expense/public:/app/public
       - $HOME/uzrnem/expense/src:/app/src
+      - $HOME/uzrnem/expense/docker/config.docker.js:/app/env.js
+      - $HOME/uzrnem/expense/server.js:/app/server.js
     ports:
       - "9001:9001"
     expose:
       - "9001"
     networks:
       - docker-compose-files_mysql-database
+
 networks:
   docker-compose-files_mysql-database:
     external: true

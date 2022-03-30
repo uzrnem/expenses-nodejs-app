@@ -25,9 +25,6 @@
     margin-bottom: 10px;
     background-color: #fffbf5;
   }
-  .table td {
-    padding: 0rem;
-  }
   .navbar {
     margin-bottom: 1rem !important;
   }
@@ -37,13 +34,8 @@
   :root {
     --padding-x-table: 20px;
   }
-  .table>thead>tr>th {
-    padding-left: var(--padding-x-table);
-    padding-right: var(--padding-x-table);
-  }
-  .table>tbody>tr>td {
-    padding-left: var(--padding-x-table);
-    padding-right: var(--padding-x-table);
+  .table>thead>tr>th, .table>tbody>tr>td {
+    padding: .4rem;
   }
   .pull-left {
     float: left;
@@ -75,14 +67,11 @@
   .t-orange {
     color: #4a2d03; /*tag*/
   }
-  .balance-amount:before {
-    content: "\20B9" " ";
-  }
   .positive-balance-amount:before {
-    content: "+ " "\20B9" " ";
+    content: "+ ";
   }
   .negative-balance-amount:before {
-    content: "- " "\20B9" " ";
+    content: "- ";
   }
   </style>
 </head>
@@ -112,6 +101,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="tag.html">Tag</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
         </li>
       </ul>
     </div>
@@ -167,7 +159,6 @@
               <th></th>
               <th>From Account</th>
               <th>To Account</th>
-              <th></th>
               <th>Remark</th>
               <th>
                 <span class="pull-right">Event date</span>
@@ -184,18 +175,17 @@
               <td>
                 <p v-bind:class="[passbook.transaction_type === 'Income' ? 't-green' : 't-blue']">{{passbook.from_account || 'Credit'}}</p>
                 <span class="pull-right t-blue-green" v-if="passbook.from_account">
-                  <span class="t-orange balance-amount">{{Number(passbook.fp_previous_balance).toLocaleString('en')}} / </span>
-                  <span class="t-blue balance-amount">{{Number(passbook.fp_balance).toLocaleString('en')}}</span>
+                  <span class="t-orange ">{{format.format(passbook.fp_previous_balance)}} / </span>
+                  <span class="t-blue ">{{format.format(passbook.fp_balance)}}</span>
                 </span>
               </td>
               <td>
                 <p v-bind:class="[passbook.transaction_type === 'Expense' ? 't-red' : 't-blue']">{{passbook.to_account || 'Debit'}}</p>
                 <span class="pull-right t-blue-green" v-if="passbook.to_account">
-                  <span class="t-orange balance-amount">{{Number(passbook.tp_previous_balance).toLocaleString('en')}} / </span>
-                  <span class="t-blue balance-amount">{{Number(passbook.tp_balance).toLocaleString('en')}}</span>
+                  <span class="t-orange ">{{format.format(passbook.tp_previous_balance)}} / </span>
+                  <span class="t-blue ">{{format.format(passbook.tp_balance)}}</span>
                 </span>
               </td>
-              <td></td>
               <td>
                 <p class="t-orange">{{passbook.tag}} : {{passbook.sub_tag}}</p>
                 <span class="t-blue-green">{{passbook.remarks}}</span>
@@ -204,9 +194,9 @@
                 <span class="ml-auto t-high-blue pull-right">{{passbook.event_date}}</span>
               </td>
               <td>
-                <p v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</p>
-                <p v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</p>
-                <p v-else class="pull-right t-red negative-balance-amount">{{Number(passbook.amount).toLocaleString('en')}}</p>
+                <p v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue ">{{format.format(passbook.amount)}}</p>
+                <p v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{format.format(passbook.amount)}}</p>
+                <p v-else class="pull-right t-red negative-balance-amount">{{format.format(passbook.amount)}}</p>
                 <p v-if="passbook.isDelete != true" class="t-orange" style="cursor: pointer;" @click="deleteRecord(passbook, i)">Delete?</p>
                 <p v-if="passbook.isDelete == true">
                   <span class="t-red" style="cursor: pointer;font-weight: bold;" @click="deleteRecordConfirm(passbook, i)">Confirm?</span>&nbsp;
@@ -216,7 +206,7 @@
               <td></td>
             </tr>
             <tr>
-              <td colspan="8" v-if="activities.length == 0">
+              <td colspan="7" v-if="activities.length == 0">
                 <p class="t-blue text-center">No Records Found!</p>
               </td>
             </tr>
@@ -304,7 +294,8 @@
           page_index: 1,
           page_size: 10,
           page_total: 0
-        }
+        },
+        format: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
       },
       created() {
           console.log('Component has been created!');

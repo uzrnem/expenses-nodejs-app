@@ -3,8 +3,6 @@ var config = require('./../db.config');
 
 var TransactionType = function(transactionType) {
   this.name = transactionType.name;
-  this.created_at = new Date();
-  this.updated_at = new Date();
 };
 
 TransactionType.create = function(newTransactionType, result) {

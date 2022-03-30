@@ -61,6 +61,17 @@ exports.findById = function(req, res) {
   });
 };
 
+exports.findByType = function(req, res) {
+  console.log('Account Controller: Get By Type call')
+  Account.findByType(req.params.account_type, function(err, account) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.json(account);
+    }
+  });
+};
+
 exports.update = function(req, res) {
   console.log('Account Controller: Update call')
   if (req.body.constructor === Object && Object.keys(req.body).length === 0) {

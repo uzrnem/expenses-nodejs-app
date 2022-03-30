@@ -15,6 +15,7 @@ app.use('/account_types', require('./src/routes/account_type.routes'));
 app.use('/activities', require('./src/routes/activity.routes'));
 app.use('/passbooks', require('./src/routes/passbook.routes'));
 app.use('/transaction_types', require('./src/routes/transaction_type.routes'));
+app.use('/statements', require('./src/routes/statement.routes'));
 
 app.use('/', express.static('public'));
 

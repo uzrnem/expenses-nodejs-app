@@ -44,9 +44,6 @@
   .t-red{
     color: #791f06;
   }
-  .balance-amount:before {
-    content: "\20B9" " ";
-  }
   </style>
 </head>
 <body>
@@ -75,6 +72,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="tag.html">Tag</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
         </li>
       </ul>
     </div>
@@ -110,6 +110,7 @@
   // Load google charts
   google.charts.load('visualization', "1", {'packages':['corechart']}); //current
   google.charts.setOnLoadCallback(drawChart);
+  var format = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
 
   // Draw the chart and set the chart values
   function drawChart() {
@@ -172,13 +173,13 @@
           let span = document.createElement("SPAN");
           //console.log(key, element[key]);
           if (key == 'balance') {
+            span.className = 'pull-right';
             if (element[key] > 0) {
-              span.className = 't-blue';
+              span.className += ' t-blue';
             } else {
-              span.className = 't-red';
+              span.className += ' t-red';
             }
-            span.className += ' pull-right balance-amount';
-            let text = document.createTextNode(Number(element[key]).toLocaleString('en'));
+            let text = document.createTextNode(format.format(element[key]));
             span.appendChild(text);
           } else {
             let text = document.createTextNode(element[key]);

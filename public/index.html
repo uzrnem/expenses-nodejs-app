@@ -76,9 +76,6 @@
   .t-orange {
     color: #4a2d03; /*tag*/
   }
-  .balance-amount:before {
-      content: "\20B9" " ";
-  }
   </style>
 </head>
 <body>
@@ -108,6 +105,9 @@
         <li class="nav-item">
           <a class="nav-link" href="tag.html">Tag</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
+        </li>
       </ul>
     </div>
   </nav>
@@ -123,21 +123,21 @@
         </div>
         <div class="form-group">
           <label for="amount">Account from:</label>
-          <select v-model="form.from_account_id" class="form-control" @change="accountChange()">
+          <select v-model="form.from_account_id" class="form-control" @change="accountChange(0)">
             <option value=0>Select Account</option>
             <option v-for="account in accounts" :value="account.id">{{ account.name + " : " + Number(account.amount).toLocaleString('en') }}</option>
           </select>
         </div>
         <div class="form-group">
           <label for="amount">Account to:</label>
-          <select v-model="form.to_account_id" class="form-control" @change="accountChange()">
+          <select v-model="form.to_account_id" class="form-control" @change="accountChange(0)">
             <option value=0>Select Account</option>
             <option v-for="account in accounts" :value="account.id">{{ account.name + " : " + Number(account.amount).toLocaleString('en') }}</option>
           </select>
         </div>
         <div class="form-group">
           <label for="amount">Tag:</label>
-          <select v-model="form.tag_id" class="form-control" @change="tagChnage(form.tag_id)">
+          <select v-model="form.tag_id" class="form-control" @change="accountChange(form.tag_id)">
             <option value=0>Select Tag</option>
             <option v-for="tag in tags" :value="tag.id">{{ tag.name }}</option>
           </select>
@@ -155,7 +155,7 @@
         </div>
         <div class="form-group">
           <label for="amount">Date:</label>
-          <input type="date" id="birthday" name="birthday" value="" class="form-control" v-model="form.event_date">
+          <input type="date" id="event_date" name="event_date" value="" class="form-control" v-model="form.event_date">
         </div>
         <div class="form-group">
           <label for="remark">Remark:</label>
@@ -189,8 +189,8 @@
                   <span class="t-blue-green"> > </span>
                   <span v-bind:class="[activity.transaction_type === 'Expense' ? 't-red' : 't-blue']">{{activity.to_account || 'Debit'}}</span>
                 </div>
-                <div class="ml-auto pull-right t-blue balance-amount">
-                  {{Number(activity.amount).toLocaleString('en')}}
+                <div class="ml-auto pull-right t-blue ">
+                  {{format.format(activity.amount)}}
                 </div>
               </div>
               <div class="card-body" style="height: 24px;">
@@ -215,9 +215,9 @@
                   <div v-if="passbook.transaction_type === 'Transfer'" class="t-blue">{{passbook.transaction_type}}</div>
                   <div v-else-if="passbook.transaction_type === 'Income'" class="t-green">{{passbook.transaction_type}}</div>
                   <div v-else class="t-red">{{passbook.transaction_type}}</div>
-                  <div v-if="passbook.transaction_type === 'Transfer'" class="ml-auto pull-right balance-amount t-blue balance-amount">{{passbook.amount}}</div>
-                  <div v-else-if="passbook.transaction_type === 'Income'" class="ml-auto pull-right balance-amount t-green">+ {{passbook.amount}}</div>
-                  <div v-else class="ml-auto pull-right balance-amount t-red">- {{passbook.amount}}</div>
+                  <div v-if="passbook.transaction_type === 'Transfer'" class="ml-auto pull-right  t-blue ">{{format.format(passbook.amount)}}</div>
+                  <div v-else-if="passbook.transaction_type === 'Income'" class="ml-auto pull-right  t-green">+ {{format.format(passbook.amount)}}</div>
+                  <div v-else class="ml-auto pull-right  t-red">- {{format.format(passbook.amount)}}</div>
                   <!-- div class="ml-auto" style="float: right; color:#03506f">{{passbook.amount}}</div -->
                 </div>
                 <div class="card-body" style="height: 24px;">
@@ -269,10 +269,11 @@
         },
         transaction: {
           account_id: 0
-        }
+        },
+        format: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
       },
       created() {
-          console.log('Component has been created!');
+          console.debug('Component has been created!');
       },
       methods: {
         processForm: function() {
@@ -289,7 +290,7 @@
             }
             this.reloadAll();
           });
-          console.log(this.form);
+          console.debug(this.form);
         },
         processHalfForm: function() {
           axios.post('activities', this.form)
@@ -305,7 +306,7 @@
             }
             this.reloadAll();
           });
-          console.log(this.form);
+          console.debug(this.form);
         },
         getAccounts: function() {
           if (!this.showAllAcounts) {
@@ -336,34 +337,31 @@
             });
           }
         },
-        accountChange:function () {
-          if (this.form.from_account_id == null || this.form.from_account_id == "") {
-            this.form.from_account_id = 0
-          }
-          if (this.form.to_account_id == null || this.form.to_account_id == "") {
-            this.form.to_account_id = 0
-          } else if (this.form.to_account_id != 0 && this.form.to_account_id == this.form.from_account_id) {
+        accountChange:function (tag_id) {
+          this.form.tag_id = tag_id
+          if ( this.form.to_account_id == this.form.from_account_id) {
             this.form.to_account_id = 0
           }
-          axios.get('tags/transactions/'+ this.form.from_account_id + '/' +this.form.to_account_id)
+          axios.get('tags/transactions/hits?from_account_id='+ this.form.from_account_id + 
+            '&to_account_id=' +this.form.to_account_id+'&tag_id='+this.form.tag_id)
           .then((response) => {
-            this.tags = response.data;
-          });
-        },
-        tagChnage:function (id) {
-          axios.get('tags/transactions/'+ this.form.from_account_id + '/' +this.form.to_account_id+'?tag_id='+id)
-          .then((response) => {
-            this.sub_tags = response.data;
+            console.debug(349, response)
+            this.tags = response.data.tags;
+            console.debug(349, this.tags)
+            this.sub_tags = response.data.sub_tags;
+            this.form.tag_id = response.data.tag_id;
+            this.form.sub_tag_id = response.data.sub_tag_id;
+            this.form.remarks = response.data.remarks;
           });
         },
         reloadAll() {
             this.getAccounts();
             this.accountChangeTransaction();
-            console.log('Reloaded..!');
+            console.debug('Reloaded..!');
         }
       },
       mounted() {
-          console.log('Component has been Mounted!');
+          console.debug('Component has been Mounted!');
           this.reloadAll();
       }
     });

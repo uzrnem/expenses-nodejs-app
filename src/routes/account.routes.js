@@ -10,6 +10,7 @@ router.post('/', accountController.create);
 
 // Retrieve a single account with id
 router.get('/:id', accountController.findById);
+router.get('/type/:account_type', accountController.findByType);
 
 // Update a account with id
 router.put('/:id', accountController.update);
