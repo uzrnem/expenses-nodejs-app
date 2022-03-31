@@ -30,10 +30,20 @@ Tag.findById = function(id, result) {
 };
 
 Tag.findAll = function(parentTag, result) {
-  sqlQuery = "Select * from tags order by name ASC";
+  whereClouse = ""
   if (parentTag != "0" && parentTag != 0) {
-    sqlQuery = "Select * from tags where " + parentTag + " in (id, tag_id) order by name ASC";
+    whereClouse = " WHERE " + parentTag + " IN (t.id, t.tag_id) ";
   }
+  sqlQuery = "SELECT " +
+  "t.id, t.name, t.tag_id, p.name AS parent, t.transaction_type_id, " +
+  "tt.name AS type, COUNT(DISTINCT(m.id)) AS tag_count " +
+  "FROM tags t " +
+  "LEFT JOIN tags p ON t.tag_id = p.id " +
+  "LEFT JOIN tags c ON t.id = c.tag_id " +
+  "LEFT JOIN transaction_types tt ON t.transaction_type_id = tt.id " +
+  "LEFT JOIN activities m ON t.id in (m.tag_id, m.sub_tag_id) " + whereClouse +
+  "GROUP BY t.id, t.name, t.tag_id, p.name, t.transaction_type_id, tt.name " +
+  "ORDER BY COUNT(DISTINCT(c.id)) DESC, t.name ASC"
   config.con.query(sqlQuery, function(err, res) {
     if (err) {
       console.error("error: ", err);

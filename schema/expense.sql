@@ -133,32 +133,29 @@ INSERT INTO `tags` (`id`, `name`, `transaction_type_id`, `tag_id`) VALUES
 (2, 'Fuel', 2, 10),
 (3, 'Salary', 3, 61),
 (4, 'Credit Card Bill', 1, 24),
-(6, 'Monthly Expense', 1, NULL),
-(7, 'Added to Wallet', 1, NULL),
 (8, 'House Hold', 2, NULL),
 (9, 'Food', 2, NULL),
 (10, 'Purchase', 2, NULL),
 (11, 'Loan', 1, 24),
 (12, 'Barrow', 1, 24),
-(13, 'Collect', 3, NULL),
-(14, 'Returned', 2, NULL),
+(13, 'Collect', 3, 19),
+(14, 'Returned', 2, 20),
 (15, 'Service', 2, 29),
 (16, 'Subscription', 2, 29),
-(17, 'Cashback', 3, 62),
-(18, 'To Parent', 2, NULL),
-(19, 'Fix By Credit', 3, NULL),
-(20, 'Fix By Debit', 2, NULL),
+(17, 'Cashback', 3, 61),
+(18, 'Resolved', 2, 20),
+(19, 'Credit', 3, NULL),
+(20, 'Debit', 2, NULL),
 (21, 'Refund', 3, 61),
 (22, 'Bank Interest', 3, 61),
 (24, 'Transfer', 1, NULL),
-(25, 'From Parent', 3, NULL),
-(26, 'Parent', 1, NULL),
-(27, 'Reward', 3, 62),
+(25, 'Resolved', 3, 19),
+(26, 'Resolved', 1, 24),
+(27, 'Reward', 3, 61),
 (28, 'Electricity', 2, 29),
 (29, 'Bill', 2, NULL),
 (30, 'Restaurant', 2, 9),
 (31, 'Purchase: Equity', 1, 24),
-(32, 'Sold', 3, NULL),
 (33, 'Sold: Equity', 1, 24),
 (34, 'Earn Profit', 3, 61),
 (35, 'Purchase: Mutual Fund', 1, 24),
@@ -166,8 +163,8 @@ INSERT INTO `tags` (`id`, `name`, `transaction_type_id`, `tag_id`) VALUES
 (38, 'Voucher', 3, 61),
 (39, 'Create FD', 1, 24),
 (40, 'Break FD', 1, 24),
-(42, 'Booked Loss', 2, NULL),
-(43, 'Dividend', 3, 62),
+(42, 'Loss', 2, 20),
+(43, 'Dividend', 3, 61),
 (44, 'Cloths', 2, 10),
 (45, 'Milk', 2, 8),
 (46, 'Travelling', 2, 29),
@@ -179,12 +176,11 @@ INSERT INTO `tags` (`id`, `name`, `transaction_type_id`, `tag_id`) VALUES
 (52, 'Shop', 2, 8),
 (55, 'LIC', 2, 29),
 (57, 'Jwellery', 2, 10),
-(58, 'EMI', 2, NULL),
-(60, 'EMI Charges', 2, 58),
+(58, 'EMI', 2, 20),
+(60, 'GST', 2, 20),
 (61, 'Earning', 3, NULL),
-(62, 'Benefits', 3, NULL),
 (63, 'FD Interest', 3, 61),
-(64, 'Charges', 2, 29),
+(64, 'Charges', 2, 20),
 (65, 'Gas Cylinder', 2, 8),
 (66, 'Medician', 2, 10),
 (67, 'Entertainment', 2, 29),
@@ -196,7 +192,9 @@ INSERT INTO `tags` (`id`, `name`, `transaction_type_id`, `tag_id`) VALUES
 (73, 'Desert', 2, 9),
 (74, 'Groccery', 2, 8),
 (75, 'Hospital', 2, 29),
-(76, 'Fruits', 2, 9);
+(76, 'Fruits', 2, 9),
+(77, 'Gift', 3, 19),
+(78, 'Gift', 2, 20);
 
 CREATE TABLE `transaction_types` (
   `id` bigint NOT NULL,
@@ -239,7 +237,7 @@ ALTER TABLE `statements`
 
 ALTER TABLE `tags`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `index_tags_on_name` (`name`),
+  ADD UNIQUE KEY `index_tags_on_name` (`name`,`transaction_type_id`) USING BTREE,
   ADD KEY `index_tags_on_transaction_type_id` (`transaction_type_id`),
   ADD KEY `index_tags_on_tag_id` (`tag_id`);
 
@@ -264,7 +262,7 @@ ALTER TABLE `statements`
   MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `tags`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 ALTER TABLE `transaction_types`
   MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;

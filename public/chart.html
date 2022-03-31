@@ -56,7 +56,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="index.html">Transaction</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="home.html">Passbook</a>
@@ -117,14 +117,17 @@
     axios.get('accounts/chart/share')
     .then((response) => {
       var data = google.visualization.arrayToDataTable(response.data.holding);
-
+      var formatter = new google.visualization.NumberFormat(
+        {negativeColor: 'red', negativeParens: true, pattern: '₹ ##,##,##,###.##'});
+      formatter.format(data, 1);
+      
       totalAmount = 0
       for (c = 1 ; response.data.holding.length > c; c++) {
         totalAmount += response.data.holding[c][1]
       }
 
       var options = {
-        title:'My Holdings of '+ totalAmount, height: 300, pieSliceText: 'percentage', is3D: true,
+        title:'My Holdings of '+ format.format(totalAmount), height: 300, pieSliceText: 'percentage', is3D: true,
         chartArea: { width : '90%', height: '80%'}, legend: {
             position: 'labeled',
             labeledValueText: 'both',
@@ -135,16 +138,14 @@
         },
         slices: { 0: {offset: 0, color: '#ff7c43' },1: { offset: 0.1, color: '#d45087'},
           2: {color: '#665191'}, 3: {offset: 0.1, color: '#003f5c'}, 4: {color: '#f95d6a'}, 5: {color: '#ffa600'}},
-        //slices: { 0: {color: '#ff7c43' },1: { offset: 0.1, color: '#d45087'}, 2: {offset: 0.2, color: '#003f5c'},
-        //    3: {color: '#ffa600'}, 4: {color: '#f95d6a'}, 5: {color: '#665191'}},
-        //slices: { 0: {color: '#00529b' },1: { color: '#007cc3'}, 2: {offset: 0.2, color: '#377b2b'},
-        //    3: {color: '#7ac142'}, 4: {color: '#fdbb2f'}, 5: {color: '#f47a1f'}}
-      };//#003f5c, #2f4b7c, #665191, #a05195, #d45087, #f95d6a, #ff7c43, #ffa600
+        //{color: '#00529b', '#007cc3', '#fdbb2f', '#f47a1f ','#377b2b', #2f4b7c, #a05195,
+      };
 
       var chart = new google.visualization.PieChart(document.getElementById('piechart'));
       chart.draw(data, options);
 
       var dataOverall = google.visualization.arrayToDataTable(response.data.totalBalance);
+      formatter.format(dataOverall, 1);
       var barchart_options = {
         title: 'Holdings against Bills', is3D: false, height: 300, pieSliceText: 'value-and-percentage',
         //slices: { 0: { color: '#dc1a1a' }, 1: { color: '#ffbc00' } }, //pieHole: 0.5, // slices: { 15: {offset: 0.5} },

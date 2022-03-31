@@ -65,7 +65,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="index.html">Transaction</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="home.html">Passbook</a>
@@ -151,7 +151,7 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="mainCard.bills">
-                Credit Card Bill: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.totalBill/mainCard.salary[0].amount)*100)}} %)</span>
+                Credit Card: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.totalBill/mainCard.salary[0].amount)*100)}} %)</span>
                 <span class="t-red pull-right">{{format.format(mainCard.totalBill)}}</span>
                 <ul class="list-group list-group-flush" v-if="mainCard.bills.length" style="font-size: small;">
                   <li class="list-group-item p-0 t-high-blue" v-for="bill in mainCard.bills">
@@ -178,7 +178,7 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="st.bill">
-                Credit Card Bill: <span class="t-orange" v-if="st.billPercent" style="font-size: small;">({{st.billPercent}} %)</span>
+                Credit Card: <span class="t-orange" v-if="st.billPercent" style="font-size: small;">({{st.billPercent}} %)</span>
                 <span class=" t-red pull-right">{{format.format(st.bill)}}</span>
                 <ul class="list-group list-group-flush" v-if="st.bills.length" style="font-size: small;">
                   <li class="list-group-item p-0 t-high-blue" v-for="bill in st.bills">

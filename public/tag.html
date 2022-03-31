@@ -15,29 +15,14 @@
     background-color: #eeeeee;
     font-size: 17px;
   }
-  .card {
-    border: 1px solid #fac16b;
-    /* border-color: #fac16b; */
-    border-radius: 5px;
-    margin: 4px;
-    padding: 8px;
-    box-shadow: 0 .5rem 1rem #ffebcc!important;
-    margin-bottom: 10px;
-    background-color: #fffbf5;
-  }
   p {
     margin: 0 !important;
   }
   :root {
     --padding-x-table: 20px;
   }
-  .table>thead>tr>th {
-    padding-left: var(--padding-x-table);
-    padding-right: var(--padding-x-table);
-  }
-  .table>tbody>tr>td {
-    padding: 0rem var(--padding-x-table);
-    
+  .table>thead>tr>th, .table>tbody>tr>td, td>.btn {
+    padding: 0.1rem 0.7rem;
   }
   .pull-left {
     float: left;
@@ -51,6 +36,15 @@
   .t-blue{
     color: #0c3940; /* #0a2f35; */
   }
+  .cbg-primary {
+    background-color: #e9ffea;
+  }
+  .cbg-danger {
+    background-color: #fffaeb;
+  }
+  .cbg-secondary {
+    background-color: #e7e4ff;
+  }
   .t-green{
     color: #196642;
   }
@@ -60,11 +54,22 @@
   .t-orange {
     color: #4a2d03; /*tag*/
   }
-  .balance-amount:before {
-    content: "\20B9" " ";
-  }
   .navbar {
     margin-bottom: 1rem !important;
+  }
+  .custom-group-item {
+    position: relative;
+    display: block;
+    border: 1px solid rgba(0,0,0,.125);
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+  .custom-group-item:last-child {
+    border-bottom: 0;
+  }
+  .custom-group-item:first-child {
+    border-top: 0;
   }
   </style>
 </head>
@@ -78,7 +83,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="index.html">Transaction</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="home.html">Passbook</a>
@@ -127,32 +132,74 @@
               </select>
             </div>
             <div class="form-group col-3">
-              <label for="amount">Save</label>
+              <label for="amount"><a @click="clear(false)" class="text-primary" style="cursor: pointer;">CLEAR</a></label>
               <div class="">
-                <a class="btn btn-primary" @click="save(false)">Here</a>
-                <a class="btn btn-primary" @click="save(true)">Clear Tag Only</a>
+                <button class="btn btn-primary" @click="save(false)">Save</button>
+                <button class="btn btn-primary" @click="save(true)">Save & Keep Form Data</button>
               </div>
             </div>
           </div>
         </form>
       </div>
-      <div class="col-9">
-        <div class="pull-right">
-          <span>Find Tags</span>
-          <td><a class="btn btn-warning" @click="parentModelKey=0; getSearchTags(parentModelKey)" style="cursor: pointer;"
-            >x</a></td>
+      <div v-bind:class="[showCardView ? 'col-12' : 'col-8']">
+        <div class="pull-left ml-4">
+          <input class="form-check-input" type="checkbox" value="" id="customSwitches" v-model="showCardView" @change="clear()">
+          <label class="form-check-label" for="customSwitches">
+            Show Card View
+          </label>
         </div>
       </div>
-      <div class="col-3">
-        <select id="disabledSelect" class="form-control" v-model="parentModelKey"
-          @click="getSearchTags(parentModelKey)" placeholder="Type">
-          <option value="">Clear Type</option>
-          <option disabled selected>Search Type</option>
-          <option  v-for="(item, key) in parentTags" :value="key" v-bind:key="key">{{item}}</option>
-        </select>
+      <div class="col-4" v-if="showCardView == false">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Search Tag</span>
+          </div>
+          <select class="custom-select" v-model="parentModelKey"
+            @click="getSearchTags(parentModelKey)">
+            <option value="0">Select Tag...</option>
+            <option  v-for="(item, key) in parentTags" :value="key" v-bind:key="key">{{item}}</option>
+          </select>
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button"
+            @click="parentModelKey=0; getSearchTags(parentModelKey)">Clear</button>
+          </div>
+        </div>
       </div>
+    </div>
+    <div class="row mt-2" v-if="tags.length && showCardView == true">
+      <div class="col-4 mb-1 p-1" v-for="branch in tree">
+        <div class="card p-0"
+          v-bind:class="{ 'cbg-danger': branch.type == 'Expense', 'cbg-secondary': branch.type == 'Transfer', 'cbg-primary': branch.type == 'Income' }">
+          <div class="card-header p-1">
+            {{branch.name}}
+            <span class="badge badge-pill m-1 pull-right"
+            v-bind:class="{ 'badge-danger': branch.type == 'Expense', 'badge-secondary': branch.type == 'Transfer', 'badge-primary': branch.type == 'Income' }"
+              >{{branch.type}}</span>
+              <span class="badge badge-pill m-1 badge-success pull-right">{{branch.tag_count}}</span>
+          </div>
+          <div class="card-body p-1" v-if="branch.childs.length > 0">
+            <ul class="list-group list-group-flush">
+              <li class="custom-group-item p-1" v-for="leaf in branch.childs">
+                {{leaf.name}}
+                <span class="badge badge-pill m-1" v-if="branch.type != leaf.type"
+                v-bind:class="{ 'badge-danger': leaf.type == 'Expense', 'badge-secondary': leaf.type == 'Transfer', 'badge-primary': leaf.type == 'Income' }"
+                  >{{leaf.type}}</span>
+                <a class="card-link pull-right mx-1" href="#transaction-app" @click="deleteRecord(leaf)">Delete</a>
+                <a class="card-link pull-right mx-1" href="#transaction-app" @click="editRecord(leaf)">Edit</a>
+                <span class="badge badge-pill m-1 badge-success pull-right">{{leaf.tag_count}}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="card-footer p-1 text-center">
+            <a class="card-link" href="#transaction-app" @click="editRecord(branch)">Edit</a>
+            <a class="card-link" href="#transaction-app" @click="deleteRecord(branch)">Delete</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-2" v-if="showCardView == false">
+      <br />
       <div class="col-lg-12 col-md-12 col-sm-12">
-        <br />
         <table class="table table-striped">
           <thead>
             <tr>
@@ -171,7 +218,7 @@
                 >{{tag.name}}</a></td>
               <td><span class="t-orange">{{transactionTypes[tag.transaction_type_id]}}</span></td>
               <td><a class="t-orange" @click="parentModelKey=(tag.tag_id || 0); getSearchTags(parentModelKey)" style="cursor: pointer;"
-                >{{parentTags[tag.tag_id] || '---'}}</a></td>
+                >{{tag.parent || '---'}}</a></td>
               <td>
                 <a class="btn btn-warning" style="padding:0rem .75rem" href="#transaction-app" @click="editRecord(tag)">Edit</a>
                 <a class="btn btn-danger" style="padding:0rem .75rem" href="#transaction-app" @click="deleteRecord(tag)">Delete</a>
@@ -197,12 +244,14 @@
         editId: null,
         model: {},
         tags: [],
+        tree: {},
         parentTags: {},
-        parentModelKey: null,
-        transactionTypes: {}
+        parentModelKey: 0,
+        transactionTypes: {},
+        showCardView: true,
       },
       created() {
-          console.log('Component has been created!');
+          console.debug('Component has been created!');
       },
       methods: {
         save: function(clearOnlyTagName) {
@@ -210,7 +259,7 @@
             axios.put('/tags/'+this.editId, this.model )
             .then((response) => { this.clear(clearOnlyTagName); });
           } else {
-            console.log(this.model)
+            console.debug(this.model)
             axios.post('/tags', this.model )
             .then((response) => { this.clear(clearOnlyTagName); });
           }
@@ -219,12 +268,20 @@
           axios.get('/tags')
           .then((response) => {
             var res = response.data;
-            for (const item in res) {
-              this.parentTags[res[item].id] = res[item].name;
-            }
-            console.log(this.parentTags);
+            res.forEach((item, index) => {
+              this.parentTags[item.id] = item.name;
+              if (item.tag_id == null) {
+                this.tree["id_" +item.id] = item
+                this.tree["id_" +item.id].childs = []
+              }
+            })
+            res.forEach((item, index) => {
+              if (item.tag_id != null) {
+                this.tree["id_" +item.tag_id].childs.push(item)
+              }
+            })
             this.tags = response.data;
-            console.log(this.tags);
+            console.debug(JSON.stringify(this.tree));
           });
         },
         getTransactionTypes: function() {
@@ -234,14 +291,14 @@
             for (const item in res) {
               this.transactionTypes[res[item].id] = res[item].name;
             }
-            console.log(this.transactionTypes);
+            console.debug(this.transactionTypes);
           });
         },
         getSearchTags: function(key) {
           axios.get('/tags?parentTag='+key)
           .then((response) => {
             this.tags = response.data;
-            console.log(this.tags);
+            console.debug(this.tags);
           });
         },
         editRecord: function(item) {
@@ -271,7 +328,7 @@
         }
       },
       mounted() {
-        console.log('Component has been Mounted!');
+        console.debug('Component has been Mounted!');
         this.getTransactionTypes();
         this.getTags();
       }
