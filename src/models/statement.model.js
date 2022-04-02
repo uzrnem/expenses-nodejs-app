@@ -126,4 +126,55 @@ Statement.monthly = function(duration, result) {
 
 };
 
+Statement.passbook = function(duration, result) {
+  //WHERE event_date > DATE_SUB(NOW(), INTERVAL 1 YEAR)
+  var date_condition = ""
+  if (duration > 0) {
+    var date_condition = " WHERE event_date > DATE_SUB(now(), INTERVAL "+duration+" YEAR) "
+  }
+
+  var sql = "SELECT concat(mon, ' ', year) AS datetime, " + 
+  "  SUM(CASE WHEN type = 'Saving' THEN amount ELSE 0 END) 'Saving', " + 
+  "  SUM(CASE WHEN type = 'Credit' THEN amount ELSE 0 END) 'Credit', " + 
+  "  SUM(CASE WHEN type = 'Wallet' THEN amount ELSE 0 END) 'Wallet', " + 
+  "  SUM(CASE WHEN type = 'Mutual Funds' THEN amount ELSE 0 END) 'Mutual Funds', " + 
+  "  SUM(CASE WHEN type = 'Stocks Equity' THEN amount ELSE 0 END) 'Stocks Equity', " + 
+  "  SUM(CASE WHEN type = 'Deposit' THEN amount ELSE 0 END) 'Deposit', " + 
+  "  SUM(CASE WHEN 1 THEN amount ELSE 0 END) 'Total' " + 
+  "FROM ( " + 
+  "  SELECT c.id, c.account_name, c.type, t.year, t.mon, ( " + 
+  "          SELECT p.balance " + 
+  "          FROM passbooks p " + 
+  "          LEFT JOIN activities a ON a.id = p.activity_id " + 
+  "          WHERE p.account_id = c.id and EXTRACT(YEAR_MONTH FROM a.event_date) <= t.yrmon " + 
+  "          ORDER BY a.event_date DESC " + 
+  "          LIMIT 1 " + 
+  "      ) as amount, t.yrmon " + 
+  "  FROM ( " + 
+  "      SELECT YEAR(event_date) AS year, MONTHNAME(event_date) AS mon, " + 
+  "          EXTRACT(YEAR_MONTH FROM event_date) AS yrmon " + 
+  "      FROM activities " + date_condition + 
+  //"      WHERE event_date > DATE_SUB(NOW(), INTERVAL 1 YEAR) " + 
+  "      GROUP BY EXTRACT(YEAR_MONTH FROM event_date), YEAR(event_date), MONTHNAME(event_date) " + 
+  "  ) t " + 
+  "  LEFT JOIN ( " + 
+  "      SELECT " + 
+  "          a.id, a.name AS account_name, t.name AS type " + 
+  "      FROM accounts a " + 
+  "      LEFT JOIN account_types t ON a.account_type_id = t.id " + 
+  "      WHERE NOT a.is_closed AND NOT a.is_snapshot_disable " + 
+  "  ) c ON 1 " + 
+  ") AS passbook " + 
+  "GROUP BY year,mon, yrmon;"
+
+  config.con.query(sql, function(err, res) {
+    if (err) {
+      console.error("error: ", err);
+      result(null, err);
+    } else {
+      result(null, res);
+    }
+  });
+};
+
 module.exports = Statement;

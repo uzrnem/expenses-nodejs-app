@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Passbook|Expenze</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./bootstrap.min.css">
+  <script src="./jquery.min.js"></script>
+  <script src="./axios.min.js"></script>
+  <script src="./bootstrap.min.js"></script>
+  <script type="text/javascript" src="./loader.js"></script>
+  <link rel="stylesheet" href="./bulma2.css">
+  <style>
+  body {
+    background-color: #eeeeee;
+  }
+  .navbar {
+    margin-bottom: 1rem !important;
+  }
+  .pull-left {
+    float: left;
+  }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Expenze</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Transaction</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="history.html">History</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="balance.html">Balance</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="expenses.html">Expenses</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="passbook.html">Passbook</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="account.html">Accounts</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="tag.html">Tag</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container" id="transaction-app">
+    <div class="row justify-content-md-center">
+      <div class="col-sm-7">
+      </div>
+      <div class="col-sm-5">
+        <div id="select-option"></div>
+        <div class="pull-right">
+          <label >Choose Passbook Duration: 
+            <select id="duration-selection" onclick="newMonthSelected()">
+              <option value="0">Overall</option>
+              <option value="1">Last year</option>
+              <option value="2">Last two years</option>
+              <option value="3">Last three years</option>
+              <option value="5">Last five years</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="curve_chart" style="height: 550px;width: 100%;"></div>
+
+<script type="text/javascript">
+  // Load google charts
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawChart);
+
+  var format = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
+
+  var urlString = "1";
+
+  function drawChart() {
+    axios.get('statements/passbook/' + urlString)
+    .then((response) => {
+      var obj = response.data;
+
+      var arr = [
+        ["Month", "Saving", "Credit", "Wallet", "Mutual Funds", "Stocks Equity", "Deposit", "Total"]
+      ]
+      obj.forEach((item, index) => {
+        arr.push([
+          item['datetime'], item['Saving'], item['Credit'], item['Wallet']
+          , item['Mutual Funds'], item['Stocks Equity'], item['Deposit'], item['Total']
+        ])
+      })
+      console.log(arr)
+      var data = google.visualization.arrayToDataTable(arr);
+
+      console.log(JSON.stringify(arr))
+
+      var options = {
+        title: 'Passbook',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        chartArea: {width:'85%',height:'70%'}
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+      chart.draw(data, options);
+    });
+  }
+
+  function newMonthSelected() {
+    urlString = document.getElementById("duration-selection").value;
+    console.log(urlString);
+    google.charts.setOnLoadCallback(drawChart);
+  }
+</script>
+</body>
+</html>
+
+<!-- 
+var arr = [
+["Month"], //0
+["Saving"], //1
+["Credit"], //2
+["Wallet"], //3
+["Mutual Funds"], //4
+["Stocks Equity"], //5
+["Deposit"]//6
+]
+obj.forEach((item, index) => {
+arr[0].push(item['datetime'])
+arr[1].push(item['Saving'])
+arr[2].push(item['Credit'])
+arr[3].push(item['Wallet'])
+arr[4].push(item['Mutual Funds'])
+arr[5].push(item['Stocks Equity'])
+arr[6].push(item['Deposit'])
+})
+var options = {
+title:'My Expenses of ' + format.format(response.data.expenses), height: 600, pieSliceText: 'percentage', is3D: true,
+chartArea: { width : '90%', height: '80%'}, legend: {
+position: 'labeled',
+labeledValueText: 'both',
+textStyle: {
+    color: 'black',
+    fontSize: 14
+}
+},
+pieSliceText: 'label-and-value',
+}
+var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+chart.draw(data, options);
+*/ -->

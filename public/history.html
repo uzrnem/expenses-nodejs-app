@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Expenze | Passbook</title>
+  <title>Expenze|History</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./bootstrap.min.css">
@@ -87,23 +87,26 @@
         <li class="nav-item">
           <a class="nav-link" href="index.html">Transaction</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="statement.html">Statement</a>
+        </li>
         <li class="nav-item active">
-          <a class="nav-link" href="home.html">Passbook</a>
+          <a class="nav-link" href="history.html">History</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="chart.html">Chart</a>
+          <a class="nav-link" href="balance.html">Balance</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="expenses.html">Expenses</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="passbook.html">Passbook</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="account.html">Accounts</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="tag.html">Tag</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="statement.html">Statement</a>
         </li>
       </ul>
     </div>
@@ -125,7 +128,7 @@
           <select v-model="transaction.tag_id" class="form-control mb-3 mr-sm-3 mb-sm-0"
             @change="getActivities()" placeholder="Select Tag">
             <option value=0>Select Tag</option>
-            <option v-for="tag in tags" :value="tag.id">{{ tag.name }}</option>
+            <option v-for="tag in tags" :value="tag.id">{{ tag.name }} | {{ tag.parent || 'GOD' }}</option>
           </select>
           <select v-model="transaction.transaction_type_id" class="form-control mb-3 mr-sm-3 mb-sm-0"
             @change="getActivities()" placeholder="Select Transaction Type">
