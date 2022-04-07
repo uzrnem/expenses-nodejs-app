@@ -26,6 +26,10 @@ Activity.create = function(newActivity, result) {
   if (newActivity.sub_tag_id == 0 || newActivity.sub_tag_id == "0") {
     delete newActivity.sub_tag_id
   }
+  if (newActivity.amount == null || newActivity.amount == 0 || newActivity.amount == "0") {
+    result('{"status":"amount invalid"}')
+    return
+  }
   config.con.query("INSERT INTO activities set ?", newActivity, function(err, res) {
     if (err) {
       console.error("error: ", err);
