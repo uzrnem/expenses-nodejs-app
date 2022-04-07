@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Expenses|Expenze</title>
+  <title>Expenses | Expenze</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./bootstrap.min.css">
@@ -20,6 +20,9 @@
   .pull-left {
     float: left;
   }
+  .c-block {
+    display: block;
+  }
   </style>
 </head>
 <body>
@@ -35,20 +38,26 @@
           <a class="nav-link" href="index.html">Transaction</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="statement.html">Statement</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="history.html">History</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="balance.html">Balance</a>
+        <li class="nav-item dropdown"
+          onclick="document.getElementById('dd-statement').classList.toggle('c-block')">
+          <a class="nav-link dropdown-toggle"> Statement </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dd-statement">
+            <a class="dropdown-item" href="statement_card_view.html">Card View</a>
+            <a class="dropdown-item" href="statement_line_chart.html">Line Chart</a>
+          </div>
         </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="expenses.html">Expenses</a>
+        <li class="nav-item dropdown active"
+          onclick="document.getElementById('dd-status').classList.toggle('c-block')">
+          <a class="nav-link dropdown-toggle"> Status </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dd-status">
+            <a class="dropdown-item" href="balance.html">Balance</a>
+            <a class="dropdown-item active" href="expenses.html">Expenses</a>
+          </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="passbook.html">Passbook</a>
-        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right pr-5">
         <li class="nav-item">
           <a class="nav-link" href="account.html">Accounts</a>
         </li>

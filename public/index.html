@@ -76,6 +76,9 @@
   .t-orange {
     color: #4a2d03; /*tag*/
   }
+  .c-block {
+    display: block;
+  }
   </style>
 </head>
 <body>
@@ -91,20 +94,26 @@
           <a class="nav-link" href="index.html">Transaction</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="statement.html">Statement</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="history.html">History</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="balance.html">Balance</a>
+        <li class="nav-item dropdown"
+          onclick="document.getElementById('dd-statement').classList.toggle('c-block')">
+          <a class="nav-link dropdown-toggle"> Statement </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dd-statement">
+            <a class="dropdown-item" href="statement_card_view.html">Card View</a>
+            <a class="dropdown-item" href="statement_line_chart.html">Line Chart</a>
+          </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="expenses.html">Expenses</a>
+        <li class="nav-item dropdown"
+          onclick="document.getElementById('dd-status').classList.toggle('c-block')">
+          <a class="nav-link dropdown-toggle"> Status </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dd-status">
+            <a class="dropdown-item" href="balance.html">Balance</a>
+            <a class="dropdown-item" href="expenses.html">Expenses</a>
+          </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="passbook.html">Passbook</a>
-        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right pr-5">
         <li class="nav-item">
           <a class="nav-link" href="account.html">Accounts</a>
         </li>
@@ -226,8 +235,8 @@
                 <div class="card-body" style="height: 24px;">
                   <div class="pull-left t-orange">{{passbook.comment}}</div>
                   <div class="ml-auto pull-right">
-                    <span class="font-14 t-blue-green">{{passbook.previous_balance}} / </span>
-                    <span class="t-blue">{{passbook.balance}}</span>
+                    <span class="font-14 t-blue-green">{{format.format(passbook.previous_balance)}} / </span>
+                    <span class="t-blue">{{format.format(passbook.balance)}}</span>
                   </div>
                 </div>
                 <div class="card-footer text-muted" style="height: 24px;">
