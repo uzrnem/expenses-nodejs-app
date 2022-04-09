@@ -5,18 +5,18 @@ version: '3.7'
 services:
   expense:
     image: expense:1.0.0
-    container_name: expenses
+    container_name: expense
     environment:
       EXP_CONFIG_DATABASE_NAME: expense
       EXP_CONFIG_USER_NAME: root
       EXP_CONFIG_PASS_NAME: root
       EXP_CONFIG_HOST_NAME: mysqldb
     ports:
-      - "9000:9000"
+      - 9000:9000
     expose:
-      - "9000"
+      - 9000
     networks:
-      - docker-compose-files_mysql-database
+      - database_mysql
 networks:
-  docker-compose-files_mysql-database:
+  database_mysql:
     external: true

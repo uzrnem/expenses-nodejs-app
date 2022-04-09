@@ -1,0 +1,37 @@
+#
+# THIS IS DEVELOPMENT COMPOSE FILE
+#
+
+#docker-compose -f docker-compose.yml up -d
+version: '3.7'
+
+services:
+  expense:
+    image: node:16-alpine3.14
+    container_name: expense
+    environment:
+      EXP_CONFIG_DATABASE_NAME: expense
+      EXP_CONFIG_USER_NAME: root
+      EXP_CONFIG_PASS_NAME: root
+      EXP_CONFIG_HOST_NAME: mysqldb
+      PORT: 9000
+    working_dir: /app
+    volumes:
+      - $HOME/uzrnem/expense/node_modules:/app/node_modules
+      - $HOME/uzrnem/expense/public:/app/public
+      - $HOME/uzrnem/expense/src:/app/src
+      - $HOME/uzrnem/expense/docker/config.docker.js:/app/env.js
+      - $HOME/uzrnem/expense/package.json:/app/package.json
+      - $HOME/uzrnem/expense/server.js:/app/server.js
+    ports:
+      - 9000:9000
+    expose:
+      - 9000
+    #command: sh -c "npm install && npm run start"
+    entrypoint: sh -c "npm install && npm run start"
+    networks:
+      - database_mysql
+
+networks:
+  database_mysql:
+    external: true
