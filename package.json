@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
-    "stop" : "sudo kill -9 `sudo lsof -t -i:9005`"
+    "start": "node server.js",
+    "stop" : "sudo kill -9 `sudo lsof -t -i:'console.log(process.PORT)'`"
   },
   "keywords": [
     "nodejs",
