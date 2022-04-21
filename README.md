@@ -30,7 +30,10 @@ If Mysql is locally Installed
 If not, then
 `docker-compose -f docker/docker-compose-full.yml up -d`
 
-### If facing Issues with Mysql
+### If you face issues connecting with Mysql
 Try following commands
-`ALTER USER 'root' IDENTIFIED WITH mysql_native_password BY 'password';`
-`flush privileges;`
+# CREATE USER 'USERNAME' IDENTIFIED BY 'password';
+# GRANT ALL PRIVILEGES ON *.* TO 'USERNAME' WITH GRANT OPTION;
+# ALTER USER 'USERNAME' IDENTIFIED WITH mysql_native_password BY 'PASSWORD';
+# FLUSH PRIVILEGES;
+# ***replace USERNAME and PASSWORD only and not password
