@@ -6,6 +6,7 @@ const statementController = require('../controllers/statement.controller');
 router.get('/', statementController.findAll);
 router.get('/monthly/:duration', statementController.monthly);
 router.get('/passbook/:duration', statementController.passbook);
+router.get('/bills/:duration', statementController.bills);
 
 // Create a new statement
 router.post('/', statementController.create);

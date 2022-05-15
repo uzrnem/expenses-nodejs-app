@@ -46,7 +46,6 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="dd-statement">
             <a class="dropdown-item" href="statement_card_view.html">Card View</a>
             <a class="dropdown-item active" href="statement_line_chart.html">Line Chart</a>
-            <a class="dropdown-item" href="bills_line_chart.html">Bills Line Chart</a>
           </div>
         </li>
         <li class="nav-item dropdown"
@@ -100,17 +99,20 @@
   var urlString = "1";
 
   function drawChart() {
-    axios.get('statements/passbook/' + urlString)
+    axios.get('statements/bills/' + urlString)
     .then((response) => {
       var obj = response.data;
 
       var arr = [
-        ["Month", "Saving", "Credit", "Wallet", "Mutual Funds", "Stocks Equity", "Deposit", "Total"]
+        ["Month", "HDFC", "YES", "SBI", "ICICI", "TOTAL", "Bills"]
       ]
       obj.forEach((item, index) => {
         arr.push([
-          item['datetime'], item['Saving'], item['Credit'], item['Wallet']
-          , item['Mutual Funds'], item['Stocks Equity'], item['Deposit'], item['Total']
+          item['datetime'], item['HDFC'] == null ? 0: item['HDFC'], 
+          item['YES'] == null ? 0: item['YES'], item['SBI'] == null ? 0: item['SBI'],
+          item['ICICI'] == null ? 0: item['ICICI'], item['TOTAL'] == null ? 0: item['TOTAL'],
+          ((item['HDFC'] == null ? 0: item['HDFC']) + (item['YES'] == null ? 0: item['YES']) +
+            (item['SBI'] == null ? 0: item['SBI']) + (item['ICICI'] == null ? 0: item['ICICI']) )
         ])
       })
       console.log(arr)

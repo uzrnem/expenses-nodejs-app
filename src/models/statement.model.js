@@ -130,7 +130,7 @@ Statement.passbook = function(duration, result) {
   //WHERE event_date > DATE_SUB(NOW(), INTERVAL 1 YEAR)
   var date_condition = ""
   if (duration > 0) {
-    var date_condition = " WHERE event_date > DATE_SUB(now(), INTERVAL "+duration+" YEAR) "
+    date_condition = " WHERE event_date > DATE_SUB(now(), INTERVAL "+duration+" YEAR) "
   }
 
   var sql = "SELECT concat(mon, ' ', year) AS datetime, " + 
@@ -166,6 +166,44 @@ Statement.passbook = function(duration, result) {
   "  ) c ON 1 " + 
   ") AS passbook " + 
   "GROUP BY year,mon, yrmon;"
+
+  config.con.query(sql, function(err, res) {
+    if (err) {
+      console.error("error: ", err);
+      result(null, err);
+    } else {
+      result(null, res);
+    }
+  });
+};
+
+Statement.bills = function(duration, result) {
+  //WHERE event_date > DATE_SUB(NOW(), INTERVAL 1 YEAR)
+  var date_condition = ""
+  if (duration > 0) {
+    date_condition = " AND event_date > DATE_SUB(now(), INTERVAL "+duration+" YEAR) "
+  }
+
+  var sql = "SELECT concat(mon, ' ', year) AS datetime, " +
+  "     SUM(CASE WHEN name = 'TOTAL' THEN amount ELSE 0 END) 'TOTAL', " +
+  "     SUM(CASE WHEN name = 'HDFC CC' THEN amount ELSE 0 END) 'HDFC', " +
+  "     SUM(CASE WHEN name = 'Yes Bank CC' THEN amount ELSE 0 END) 'YES', " +
+  "     SUM(CASE WHEN name = 'SBI CC' THEN amount ELSE 0 END) 'SBI', " +
+  "     SUM(CASE WHEN name = 'ICICI Amazon Pay CC' THEN amount ELSE 0 END) 'ICICI' " +
+  " FROM ( " +
+  "     SELECT " +
+  "         IFNULL(ac.name, 'TOTAL') AS name, sum(a.amount) AS amount, " +
+  "         EXTRACT(YEAR_MONTH FROM a.event_date) AS yrmon, YEAR(a.event_date) AS year, MONTHNAME(a.event_date) AS mon " +
+  "     FROM `activities` a " +
+  "     LEFT JOIN accounts ac ON a.to_account_id = ac.id " +
+  "     WHERE ( (SELECT id FROM `tags` WHERE name = 'Credit Card Bill') IN (a.tag_id, a.sub_tag_id) OR " +
+  "       a.transaction_type_id in (SELECT id FROM `transaction_types` WHERE name = 'Expense') ) " +
+  date_condition + 
+  "     GROUP BY a.to_account_id, EXTRACT(YEAR_MONTH FROM a.event_date), YEAR(a.event_date), MONTHNAME(a.event_date) " +
+  " ) AS passbook " +
+  " GROUP BY year,mon, yrmon;";
+
+  console.log (date_condition, sql)
 
   config.con.query(sql, function(err, res) {
     if (err) {

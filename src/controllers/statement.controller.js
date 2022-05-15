@@ -35,6 +35,17 @@ exports.passbook = function(req, res) {
   });
 };
 
+exports.bills = function(req, res) {
+  console.log('Statement Controller: Bills call')
+  Statement.bills(req.params.duration, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(result);
+    }
+  });
+};
+
 exports.create = function(req, res) {
   console.log('Statement Controller: Add call')
   const new_statement = new Statement(req.body);

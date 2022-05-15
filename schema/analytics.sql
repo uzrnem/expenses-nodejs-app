@@ -77,3 +77,22 @@ a.*
 FROM activities a
 left join tags t on t.id = a.sub_tag_id
 where a.sub_tag_id is not null and a.tag_id != t.tag_id;
+
+
+--Credit cards 
+SELECT year,mon, yrmon,
+    SUM(CASE WHEN name = 'TOTAL' THEN amount ELSE 0 END) 'TOTAL',
+    SUM(CASE WHEN name = 'HDFC CC' THEN amount ELSE 0 END) 'HDFC CC',
+    SUM(CASE WHEN name = 'Yes Bank CC' THEN amount ELSE 0 END) 'Yes Bank CC',
+    SUM(CASE WHEN name = 'SBI CC' THEN amount ELSE 0 END) 'SBI CC',
+    SUM(CASE WHEN name = 'ICICI Amazon Pay CC' THEN amount ELSE 0 END) 'ICICI'
+FROM (
+    SELECT
+        IFNULL(ac.name, 'TOTAL') AS name, sum(a.amount) AS amount,
+        EXTRACT(YEAR_MONTH FROM a.event_date) AS yrmon, YEAR(a.event_date) AS year, MONTHNAME(a.event_date) AS mon
+    FROM `activities` a
+    LEFT JOIN accounts ac ON a.to_account_id = ac.id
+    WHERE (SELECT id FROM `tags` WHERE name = 'Credit Card Bill') IN (a.tag_id, a.sub_tag_id) OR a.transaction_type_id in (SELECT id FROM `transaction_types` WHERE name = 'Expense')
+    GROUP BY a.to_account_id, EXTRACT(YEAR_MONTH FROM a.event_date), YEAR(a.event_date), MONTHNAME(a.event_date)
+) AS passbook
+GROUP BY year,mon, yrmon;
