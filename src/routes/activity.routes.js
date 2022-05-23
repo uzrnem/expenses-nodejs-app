@@ -12,7 +12,7 @@ router.post('/', activityController.create);
 router.get('/:id', activityController.findById);
 
 // Update a activity with id
-router.put('/:id', activityController.update);
+router.post('/:id', activityController.update);
 
 // Delete a activity with id
 router.delete('/:id', activityController.delete);

@@ -15,43 +15,46 @@ var Activity = function(activity) {
 };
 
 Activity.create = function(newActivity, result) {
-  newActivity.transaction_type_id = 1 //Transfer
-  if (newActivity.from_account_id == 0 || newActivity.from_account_id == "0") {
-    newActivity.transaction_type_id = 3 //Income credit
-    delete newActivity.from_account_id
-  } else if (newActivity.to_account_id == 0 || newActivity.to_account_id == "0") {
-    newActivity.transaction_type_id = 2 //Expense debit
-    delete newActivity.to_account_id
-  }
-  if (newActivity.sub_tag_id == 0 || newActivity.sub_tag_id == "0") {
-    delete newActivity.sub_tag_id
-  }
-  if (newActivity.amount == null || newActivity.amount == 0 || newActivity.amount == "0") {
-    result('{"status":"amount invalid"}')
-    return
-  }
   config.con.query("INSERT INTO activities set ?", newActivity, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res.insertId);
     }
   });
 };
+
+Activity.update = function(id, activity, result) {
+  config.con.query("UPDATE activities SET from_account_id=?,to_account_id=?,tag_id=?,amount=? " +
+    ",sub_tag_id=?,event_date=?,remarks=? WHERE id = ?",
+    [activity.from_account_id, activity.to_account_id, activity.tag_id, activity.amount, activity.sub_tag_id
+      , activity.event_date, activity.remarks, id],
+    (res, err) => {
+      if (err) {
+        console.error("error: ", err);
+        result({error: err.sqlMessage}, null);
+      } else {
+        console.error("res: ", res);
+        result(null, res);
+      }
+  });
+};
+
 Activity.findById = function(id, result) {
   config.con.query("Select * from activities where id = ? ", id, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
   });
 };
+
 Activity.findAll = function(result) {
   config.con.query(
-    " SELECT act.id, act.amount, act.event_date, act.remarks, act.created_at, act.updated_at, " +
+    " SELECT act.*, " +
     "  fa.name as from_account, ta.name as to_account, tg.name as tag, s_tg.name as sub_tag, " +
     "  transaction_types.name as transaction_type " +
     " FROM `activities` as act " +
@@ -63,33 +66,18 @@ Activity.findAll = function(result) {
     " ORDER BY `act`.`created_at` DESC, `act`.`event_date` DESC, `act`.`id` DESC LIMIT 5 -- OFFSET 0", function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
   });
 };
-/*
-Activity.update = function(id, activity, result) {
-  config.con.query("UPDATE accounts SET from_account_id=?,to_account_id=?,tag_id=?,amount=? " +
-    ",sub_tag_id=?,event_date=?,remarks=?,transaction_type_id=? WHERE id = ?",
-    [activity.from_account_id, activity.to_account_id, activity.tag_id, activity.amount, activity.sub_tag_id
-      , activity.event_date, activity.remarks, activity.transaction_type_id, id],
-    (res, err) => {
-      if (err) {
-        console.error("error: ", err);
-        result(null, err);
-      } else {
-        result(null, res);
-      }
-  });
-};
-*/
+
 Activity.delete = function(id, result) {
   config.con.query("DELETE FROM activities WHERE id = ?", [id], function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -142,7 +130,7 @@ Activity.log = function(data, result) {
       var limit = data.page_size
       var offset = (data.page_index - 1 ) * limit
 
-      var sql = "SELECT act.id, act.amount, act.event_date, act.remarks, act.created_at, act.updated_at, " +
+      var sql = "SELECT act.*, " +
       "  fa.name as from_account, ta.name as to_account, tg.name as tag, s_tg.name as sub_tag, " +
       "  transaction_types.name as transaction_type, fp.previous_balance as fp_previous_balance, " +
       "  fp.balance as fp_balance, tp.previous_balance as tp_previous_balance, tp.balance as tp_balance " +

@@ -50,51 +50,141 @@ CREATE TABLE `activities` (
   `updated_at` datetime(6) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 DELIMITER $$
-CREATE TRIGGER `after_activity_trigger` AFTER INSERT ON `activities` FOR EACH ROW BEGIN
-DECLARE old_balance decimal(20,2);
-DECLARE transaction_type varchar(20);
 
-IF NEW.from_account_id IS NULL THEN
-  set old_balance = ( select amount from accounts where id = NEW.to_account_id );
-  set transaction_type = ( select id from transaction_types where name = 'Income' );
-  INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
-  VALUES(NEW.to_account_id, NEW.id, old_balance, transaction_type, old_balance + NEW.amount, now(), now());
-  update accounts set amount = old_balance + NEW.amount, updated_at = now() where id = NEW.to_account_id;
-ELSEIF NEW.to_account_id IS NULL THEN
-  set old_balance = ( select amount from accounts where id = NEW.from_account_id );
-  set transaction_type = ( select id from transaction_types where name = 'Expense' );
-  INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
-  VALUES(NEW.from_account_id, NEW.id, old_balance, transaction_type, old_balance - NEW.amount, now(), now());
-  update accounts set amount = old_balance - NEW.amount, updated_at = now() where id = NEW.from_account_id;
-ELSE
-  set old_balance = ( select amount from accounts where id = NEW.from_account_id );
-  set transaction_type = ( select id from transaction_types where name = 'Expense' );
-  INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
-  VALUES(NEW.from_account_id, NEW.id, old_balance, transaction_type, old_balance - NEW.amount, now(), now());
-  update accounts set amount = old_balance - NEW.amount, updated_at = now() where id = NEW.from_account_id;
-
-  set old_balance = ( select amount from accounts where id = NEW.to_account_id );
-  set transaction_type = ( select id from transaction_types where name = 'Income' );
-  INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
-  VALUES(NEW.to_account_id, NEW.id, old_balance, transaction_type, old_balance + NEW.amount, now(), now());
-  update accounts set amount = old_balance + NEW.amount, updated_at = now() where id = NEW.to_account_id;
-END IF;
+CREATE TRIGGER `a1_before_insert_activity` BEFORE INSERT ON `activities` FOR EACH ROW BEGIN
+  IF NEW.from_account_id IS NOT NULL AND NEW.from_account_id in ('', 0, '0') THEN
+    SET NEW.from_account_id = NULL;
+  END IF;
+  IF NEW.to_account_id IS NOT NULL AND NEW.to_account_id in ('', 0, '0') THEN
+    SET NEW.to_account_id = NULL;
+  END IF;
+  IF NEW.sub_tag_id IS NOT NULL AND NEW.sub_tag_id in ('', 0, '0') THEN
+    SET NEW.sub_tag_id = NULL;
+  END IF;
+  IF NEW.tag_id IS NOT NULL AND NEW.tag_id in ('', 0, '0') THEN
+    SET NEW.tag_id = NULL;
+  END IF;
+  IF NEW.amount IS NOT NULL AND NEW.amount in ('', 0, '0') THEN
+    SIGNAL SQLSTATE '45000' 
+    SET MESSAGE_TEXT = 'amount can not be zero';
+  ELSEIF NEW.from_account_id IS NULL AND NEW.to_account_id IS NULL THEN
+    SIGNAL SQLSTATE '45000' 
+    SET MESSAGE_TEXT = 'transaction not allowed';
+  ELSEIF NEW.from_account_id IS NULL THEN
+    SET NEW.transaction_type_id = ( select id from transaction_types where name = 'Income' );
+  ELSEIF NEW.to_account_id IS NULL THEN
+    SET NEW.transaction_type_id = ( select id from transaction_types where name = 'Expense' );
+  ELSE
+    SET NEW.transaction_type_id = ( select id from transaction_types where name = 'Transfer' );
+  END IF;
 END
 $$
 DELIMITER ;
+
 DELIMITER $$
-CREATE TRIGGER `before_delete_activity_trigger` BEFORE DELETE ON `activities` FOR EACH ROW BEGIN
-  DELETE FROM passbooks where activity_id = OLD.id;
-  IF OLD.from_account_id IS NULL THEN
-    
-    update accounts a set amount = amount - OLD.amount, updated_at = now() where id = OLD.to_account_id;
-  ELSEIF OLD.to_account_id IS NULL THEN
-    
-    update accounts set amount = amount + OLD.amount, updated_at = now() where id = OLD.from_account_id;
+CREATE TRIGGER `a2_after_insert_activity` AFTER INSERT ON `activities` FOR EACH ROW BEGIN
+  DECLARE old_balance decimal(20,2);
+  DECLARE transaction_type varchar(20);
+
+  IF NEW.to_account_id IS NOT NULL THEN
+    set old_balance = ( select amount from accounts where id = NEW.to_account_id );
+    set transaction_type = ( select id from transaction_types where name = 'Income' );
+    INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
+    VALUES(NEW.to_account_id, NEW.id, old_balance, transaction_type, old_balance + NEW.amount, now(), now());
+    update accounts set amount = old_balance + NEW.amount, updated_at = now() where id = NEW.to_account_id;
+  END IF;
+
+  IF NEW.from_account_id IS NOT NULL THEN
+    set old_balance = ( select amount from accounts where id = NEW.from_account_id );
+    set transaction_type = ( select id from transaction_types where name = 'Expense' );
+    INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
+    VALUES(NEW.from_account_id, NEW.id, old_balance, transaction_type, old_balance - NEW.amount, now(), now());
+    update accounts set amount = old_balance - NEW.amount, updated_at = now() where id = NEW.from_account_id;
+  END IF;
+END
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER `b1_before_update_activity` BEFORE UPDATE ON `activities` FOR EACH ROW BEGIN
+  IF NEW.from_account_id IS NOT NULL AND NEW.from_account_id in ('', 0, '0') THEN
+    SET NEW.from_account_id = NULL;
+  END IF;
+  IF NEW.to_account_id IS NOT NULL AND NEW.to_account_id in ('', 0, '0') THEN
+    SET NEW.to_account_id = NULL;
+  END IF;
+  IF NEW.sub_tag_id IS NOT NULL AND NEW.sub_tag_id in ('', 0, '0') THEN
+    SET NEW.sub_tag_id = NULL;
+  END IF;
+  IF NEW.tag_id IS NOT NULL AND NEW.tag_id in ('', 0, '0') THEN
+    SET NEW.tag_id = NULL;
+  END IF;
+  IF NEW.amount IS NOT NULL AND NEW.amount in ('', 0, '0') THEN
+    SIGNAL SQLSTATE '45000' 
+    SET MESSAGE_TEXT = 'amount can not be zero';
+  ELSEIF NEW.from_account_id IS NULL AND NEW.to_account_id IS NULL THEN
+    SIGNAL SQLSTATE '45000' 
+    SET MESSAGE_TEXT = 'transaction not allowed';
+  ELSEIF NEW.from_account_id IS NULL THEN
+    SET NEW.transaction_type_id = ( select id from transaction_types where name = 'Income' );
+  ELSEIF NEW.to_account_id IS NULL THEN
+    SET NEW.transaction_type_id = ( select id from transaction_types where name = 'Expense' );
   ELSE
+    SET NEW.transaction_type_id = ( select id from transaction_types where name = 'Transfer' );
+  END IF;
+END
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER `b2_after_udpate_activity` AFTER UPDATE ON `activities` FOR EACH ROW BEGIN
+  DECLARE old_balance decimal(20,2);
+  DECLARE transaction_type varchar(20);
+
+
+  IF NOT (OLD.from_account_id <=> NEW.from_account_id) THEN
+    IF OLD.from_account_id IS NOT NULL THEN
+      DELETE FROM passbooks where activity_id = OLD.id and account_id = OLD.from_account_id;
+      update accounts set amount = amount + OLD.amount, updated_at = now() where id = OLD.from_account_id;
+    END IF;
     
-    update accounts set amount = amount - OLD.amount, updated_at = now() where id = OLD.to_account_id;
+    IF NEW.from_account_id IS NOT NULL THEN
+      set old_balance = ( select amount from accounts where id = NEW.from_account_id );
+      set transaction_type = ( select id from transaction_types where name = 'Expense' );
+      INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
+      VALUES(NEW.from_account_id, NEW.id, old_balance, transaction_type, old_balance - NEW.amount, now(), now());
+      update accounts set amount = old_balance - NEW.amount, updated_at = now() where id = NEW.from_account_id;
+    END IF;
+  END IF;
+
+  IF NOT (OLD.to_account_id <=> NEW.to_account_id) THEN
+    IF OLD.to_account_id IS NOT NULL THEN
+      DELETE FROM passbooks where activity_id = OLD.id and account_id = OLD.to_account_id;
+      update accounts a set amount = amount - OLD.amount, updated_at = now() where id = OLD.to_account_id;
+    END IF;
+
+    IF NEW.to_account_id IS NOT NULL THEN
+      set old_balance = ( select amount from accounts where id = NEW.to_account_id );
+      set transaction_type = ( select id from transaction_types where name = 'Income' );
+      INSERT INTO passbooks(account_id, activity_id, previous_balance, transaction_type_id, balance, created_at, updated_at)
+      VALUES(NEW.to_account_id, NEW.id, old_balance, transaction_type, old_balance + NEW.amount, now(), now());
+      update accounts set amount = old_balance + NEW.amount, updated_at = now() where id = NEW.to_account_id;
+    END IF;
+  END IF;
+END
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER `c1_before_delete_activity` BEFORE DELETE ON `activities` FOR EACH ROW BEGIN
+
+  DELETE FROM passbooks where activity_id = OLD.id;
+  IF OLD.from_account_id IS NOT NULL THEN
     update accounts set amount = amount + OLD.amount, updated_at = now() where id = OLD.from_account_id;
+  END IF;
+  
+  IF OLD.to_account_id IS NOT NULL THEN
+    update accounts a set amount = amount - OLD.amount, updated_at = now() where id = OLD.to_account_id;
   END IF;
 END
 $$
@@ -272,19 +362,23 @@ ALTER TABLE `accounts`
   ADD CONSTRAINT `fk_rails_61f9ab2964` FOREIGN KEY (`account_type_id`) REFERENCES `account_types` (`id`);
 
 ALTER TABLE `activities`
-  ADD CONSTRAINT `FK_ACTIVITIES_TABLE_CHILD_TAG_ID` FOREIGN KEY (`sub_tag_id`) REFERENCES `tags` (`id`),
-  ADD CONSTRAINT `fk_rails_536f0e5d8e` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`),
-  ADD CONSTRAINT `fk_rails_6975058647` FOREIGN KEY (`transaction_type_id`) REFERENCES `transaction_types` (`id`),
-  ADD CONSTRAINT `fk_rails_ae18706e5b` FOREIGN KEY (`to_account_id`) REFERENCES `accounts` (`id`),
-  ADD CONSTRAINT `fk_rails_e6d7d17428` FOREIGN KEY (`from_account_id`) REFERENCES `accounts` (`id`);
+  ADD CONSTRAINT `activities_ibfk_1` FOREIGN KEY (`sub_tag_id`) REFERENCES `tags` (`id`),
+  ADD CONSTRAINT `activities_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`),
+  ADD CONSTRAINT `activities_ibfk_3` FOREIGN KEY (`transaction_type_id`) REFERENCES `transaction_types` (`id`),
+  ADD CONSTRAINT `activities_ibfk_4` FOREIGN KEY (`to_account_id`) REFERENCES `accounts` (`id`),
+  ADD CONSTRAINT `activities_ibfk_5` FOREIGN KEY (`from_account_id`) REFERENCES `accounts` (`id`);
 
 ALTER TABLE `passbooks`
-  ADD CONSTRAINT `fk_rails_7058f1c5fb` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`),
-  ADD CONSTRAINT `fk_rails_7dde36353c` FOREIGN KEY (`transaction_type_id`) REFERENCES `transaction_types` (`id`);
+  ADD CONSTRAINT `passbooks_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`),
+  ADD CONSTRAINT `passbooks_ibfk_2` FOREIGN KEY (`transaction_type_id`) REFERENCES `transaction_types` (`id`),
+  ADD CONSTRAINT `passbooks_ibfk_3` FOREIGN KEY (`activity_id`) REFERENCES `activities` (`id`);
+
+ALTER TABLE `statements`
+  ADD CONSTRAINT `statements_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`);
 
 ALTER TABLE `tags`
-  ADD CONSTRAINT `fk_rails_ab705d38e0` FOREIGN KEY (`transaction_type_id`) REFERENCES `transaction_types` (`id`),
-  ADD CONSTRAINT `fk_rails_dcd2e47036` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`);
+  ADD CONSTRAINT `tags_ibfk_1` FOREIGN KEY (`transaction_type_id`) REFERENCES `transaction_types` (`id`),
+  ADD CONSTRAINT `tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -124,43 +124,133 @@
   <div class="container" id="transaction-app">
     <div class="row justify-content-md-center">
       <div class="col-sm-12">
-        <form class="form-inline">
-          <select v-model="transaction.account_id" class="form-control mb-3 mr-sm-3 mb-sm-0"
-            @change="getActivities()" placeholder="Select Account">
-            <option value=0>Select Account</option>
-            <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
-          </select>
-          <select v-model="transaction.account_key" class="form-control mb-3 mr-sm-3 mb-sm-0"
-            @change="getActivities()" placeholder="Select Account">
-            <option value=0>Select Another Account</option>
-            <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
-          </select>
-          <select v-model="transaction.tag_id" class="form-control mb-3 mr-sm-3 mb-sm-0"
-            @change="getActivities()" placeholder="Select Tag">
-            <option value=0>Select Tag</option>
-            <option v-for="tag in tags" :value="tag.id">{{ tag.name }} | {{ tag.parent || 'GOD' }}</option>
-          </select>
-          <select v-model="transaction.transaction_type_id" class="form-control mb-3 mr-sm-3 mb-sm-0"
-            @change="getActivities()" placeholder="Select Transaction Type">
-            <option value=0>Select Transaction Type</option>
-            <option v-for="tag in transactionTypes" :value="tag.id">{{ tag.name }}</option>
-          </select>
-          <div class="input-group  mb-3 mr-sm-3 mb-sm-0">
-            <label>Start Date</label>
-            <input type="date" class="form-control" v-model="transaction.start_date">
+        <button class="btn btn-info pull-right" v-on:click="isSearchFormOpen = true" v-if="!isSearchFormOpen">Search</button>
+      </div>
+      <div class="col-sm-12">
+        <h4 v-if="isEditFormOpen">Edit Transaction</h4>
+        <form v-if="isEditFormOpen">
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>From Account</label>
+              <select v-model="editModel.from_account_id" class="form-control"
+                @change="getActivities()" placeholder="Select Account">
+                <option value=0>Select Account</option>
+                <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>To Account</label>
+              <select v-model="editModel.to_account_id" class="form-control"
+                @change="getActivities()" placeholder="Select Account">
+                <option value=0>Select Account</option>
+                <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Amount</label>
+              <input type="number" class="form-control" v-model="editModel.amount" placeholder="Amount">
+            </div>
           </div>
-
-          <div class="input-group  mb-3 mr-sm-3 mb-sm-0">
-            <label>End Date</label>
-            <input type="date" class="form-control" v-model="transaction.end_date">
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Select Tag</label>
+              <select v-model="editModel.tag_id" class="form-control"
+                placeholder="Select Tag">
+                <option value=0>Select Tag</option>
+                <option v-for="tag in tags" :value="tag.id" v-if="tag.tag_id == null">{{ tag.name }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Select Sub Tag</label>
+              <select v-model="editModel.sub_tag_id" class="form-control"
+                placeholder="Select Tag">
+                <option value=0>Select Tag</option>
+                <option v-for="tag in tags" :value="tag.id" v-if="tag.tag_id == editModel.tag_id">{{ tag.name }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Event Date</label>
+              <input type="date" class="form-control" v-model="editModel.event_date">
+            </div>
           </div>
-
-          <div class="input-group mb-2 mr-sm-2 mb-sm-0">
-            <button class="btn btn-primary m-l-3" v-on:click="getActivities()">Submit</button>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Remarks</label>
+              <input type="text" class="form-control" v-model="editModel.remarks" placeholder="Remarks">
+            </div>
+            <div class="form-group col-md-3">
+              <label>Options</label>
+              <div>
+                <a class="btn btn-info" v-on:click="editRecordConfirm()">Update</a>
+                <a class="btn btn-warning" v-on:click="cancelEditRecord()">Cancel</a>
+              </div>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Delete</label>
+              <div>
+                <a class="btn btn-danger" v-if="editModel.openDelete != true" v-on:click="openDeleteRecord()">Delete</a>
+                <a class="btn btn-danger" v-if="editModel.openDelete == true" v-on:click="deleteRecordConfirm()">Confirm?</a>
+                <a class="btn btn-success" v-if="editModel.openDelete == true" v-on:click="cancelDeleteRecord()">Cancel</a>
+              </div>
+            </div>
           </div>
-
-          <div class="input-group mb-2 mr-sm-2 mb-sm-0">
-            <button class="btn btn-danger m-l-3" v-on:click="clear()">Clear</button>
+        </form>
+        <h4 v-if="isSearchFormOpen">Search Passbook Entrie</h4>
+        <form v-if="isSearchFormOpen">
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Primary Account</label>
+              <select v-model="transaction.account_id" class="form-control"
+                @change="getActivities()" placeholder="Select Account">
+                <option value=0>Select Account</option>
+                <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Secondary Account</label>
+              <select v-model="transaction.account_key" class="form-control"
+                @change="getActivities()" placeholder="Select Account">
+                <option value=0>Select Another Account</option>
+                <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Select Transaction Type</label>
+              <select v-model="transaction.transaction_type_id" class="form-control"
+                @change="getActivities()" placeholder="Select Transaction Type">
+                <option value=0>Select Transaction Type</option>
+                <option v-for="tag in transactionTypes" :value="tag.id">{{ tag.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label>Select Tag</label>
+              <select v-model="transaction.tag_id" class="form-control"
+                @change="getActivities()" placeholder="Select Tag">
+                <option value=0>Select Tag</option>
+                <option v-for="tag in tags" :value="tag.id">{{ tag.name }} | {{ tag.parent || 'GOD' }}</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label>From Date</label>
+              <input type="date" class="form-control" v-model="transaction.start_date">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Till Date</label>
+              <input type="date" class="form-control" v-model="transaction.end_date">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <a class="btn btn-primary" v-on:click="getActivities()">Submit</a>
+            </div>
+            <div class="form-group col-md-4">
+              <a class="btn btn-danger" v-on:click="clear()">Clear</a>
+            </div>
+            <div class="form-group col-md-4">
+              <a class="btn btn-warning" v-on:click="isSearchFormOpen = false" v-if="isSearchFormOpen">Hide Search Form</a>
+            </div>
           </div>
         </form>
       </div>
@@ -207,14 +297,14 @@
                 <span class="ml-auto t-high-blue pull-right">{{passbook.event_date}}</span>
               </td>
               <td>
-                <p v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue ">{{format.format(passbook.amount)}}</p>
-                <p v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{format.format(passbook.amount)}}</p>
-                <p v-else class="pull-right t-red negative-balance-amount">{{format.format(passbook.amount)}}</p>
-                <p v-if="passbook.isDelete != true" class="t-orange" style="cursor: pointer;" @click="deleteRecord(passbook, i)">Delete?</p>
-                <p v-if="passbook.isDelete == true">
-                  <span class="t-red" style="cursor: pointer;font-weight: bold;" @click="deleteRecordConfirm(passbook, i)">Confirm?</span>&nbsp;
-                  <span class="t-green" style="cursor: pointer;font-weight: bold;" @click="deleteRecordCancel(passbook, i)">Cancel?</span>
-                </p>
+                <div style="width: 100%; height: 1.5em;">
+                  <p v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue ">{{format.format(passbook.amount)}}</p>
+                  <p v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{format.format(passbook.amount)}}</p>
+                  <p v-else class="pull-right t-red negative-balance-amount">{{format.format(passbook.amount)}}</p>
+                </div>
+                <div style="width: 100%; height: 1.5em;">
+                  <p class="pull-right t-orange" style="cursor: pointer;" @click="editRecord(passbook)">Edit?</p>
+                </div>
               </td>
               <td></td>
             </tr>
@@ -308,10 +398,21 @@
           page_size: 10,
           page_total: 0
         },
-        format: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
+        format: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }),
+        isSearchFormOpen: false,
+        isEditFormOpen: false,
+        editModel: {
+          from_account_id: 0,
+          to_account_id: 0,
+          tag_id: 0,
+          sub_tag_id: 0,
+          amount: null,
+          event_date: new Date().toISOString().slice(0,10),
+          remarks: null
+        }
       },
       created() {
-          console.log('Component has been created!');
+          console.debug('Component has been created!');
       },
       methods: {
         getTags: function() {
@@ -342,17 +443,54 @@
           this.transaction.page_index = n;
           this.getActivities();
         },
-        deleteRecord: function(passbook, i) {
-          this.activities.list[i].isDelete = true;
-          this.$forceUpdate();
+        editRecord: function(passbook) {
+          this.editModel = {
+            id: passbook.id,
+            from_account_id: passbook.from_account_id || 0,
+            to_account_id: passbook.to_account_id || 0,
+            tag_id: passbook.tag_id || 0,
+            sub_tag_id: passbook.sub_tag_id || 0,
+            amount: passbook.amount || null,
+            event_date: passbook.event_date || new Date().toISOString().slice(0,10),
+            remarks: passbook.remarks || null,
+            openDelete: false
+          }
+          console.debug(this.editModel)
+          this.isSearchFormOpen = false
+          this.isEditFormOpen = true
         },
-        deleteRecordCancel: function(passbook, i) {
-          passbook.isDelete = false;
-          this.$forceUpdate();
+        cancelEditRecord: function(passbook) {
+          this.editModel = {
+            from_account_id: 0,
+            to_account_id: 0,
+            tag_id: 0,
+            sub_tag_id: 0,
+            amount: null,
+            event_date: new Date().toISOString().slice(0,10),
+            remarks: null
+          }
+          this.isEditFormOpen = false
         },
-        deleteRecordConfirm: function(passbook) {
-          axios.delete('activities/'+passbook.id)
+        editRecordConfirm: function() {
+          axios.post('activities/'+this.editModel.id, this.editModel)
           .then((response) => {
+            this.cancelDeleteRecord();
+            this.cancelEditRecord();
+            this.getActivities();
+          });
+        },
+        openDeleteRecord: function() {
+          this.editModel.openDelete = true;
+          console.debug(this.editModel)
+        },
+        cancelDeleteRecord: function() {
+          this.editModel.openDelete = false;
+        },
+        deleteRecordConfirm: function() {
+          axios.delete('activities/'+this.editModel.id)
+          .then((response) => {
+            this.cancelDeleteRecord();
+            this.cancelEditRecord();
             this.getActivities();
           });
         },
@@ -381,11 +519,11 @@
             page_index: 1,
             page_size: 10
           };
-          console.log('Reloaded..!');
+          console.debug('Reloaded..!');
         }
       },
       mounted() {
-          console.log('Component has been Mounted!');
+          console.debug('Component has been Mounted!');
           this.getTags();
           this.getAccounts();
           this.getActivities();
