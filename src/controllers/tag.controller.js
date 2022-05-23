@@ -64,7 +64,8 @@ exports.update = function(req, res) {
       } else {
         res.json({
           error: false,
-          message: 'Tag successfully updated'
+          message: 'Tag successfully updated',
+          data: tag
         });
       }
     });
@@ -79,7 +80,8 @@ exports.delete = function(req, res) {
     } else {
       res.json({
         error: false,
-        message: 'Tag successfully deleted'
+        message: 'Tag successfully deleted',
+        data: tag
       });
     }
   });

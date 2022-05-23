@@ -268,7 +268,7 @@
         }
       },
       created() {
-          console.log('Component has been created!');
+          console.debug('Component has been created!');
       },
       methods: {
         processForm: function() {
@@ -285,7 +285,7 @@
             }
             this.reloadAll();
           });
-          console.log(this.form);
+          console.debug(this.form);
         },
         getAccounts: function() {
           if (!this.showAllAcounts) {
@@ -339,11 +339,11 @@
         reloadAll() {
             this.getAccounts();
             this.accountChangeTransaction();
-            console.log('Reloaded..!');
+            console.debug('Reloaded..!');
         }
       },
       mounted() {
-          console.log('Component has been Mounted!');
+          console.debug('Component has been Mounted!');
           this.reloadAll();
       }
     });

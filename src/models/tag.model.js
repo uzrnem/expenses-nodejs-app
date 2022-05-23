@@ -11,7 +11,7 @@ Tag.create = function(newTag, result) {
   config.con.query("INSERT INTO tags set ?", newTag, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res.insertId);
     }
@@ -22,7 +22,7 @@ Tag.findById = function(id, result) {
   config.con.query("Select * from tags where id = ? ", id, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -48,7 +48,7 @@ Tag.findAll = function(parentTag, result) {
   config.con.query(sqlQuery, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -61,7 +61,7 @@ Tag.update = function(id, tag, result) {
     function(err, res) {
       if (err) {
         console.error("error: ", err);
-        result(null, err);
+        result({error: err.sqlMessage}, null);
       } else {
         result(null, res);
       }
@@ -71,7 +71,7 @@ Tag.delete = function(id, result) {
   config.con.query("DELETE FROM tags WHERE id = ?", [id], function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -181,7 +181,7 @@ Tag.getByParentTagId = function(tagId, result) {
   config.con.query("Select * from tags where tag_id = ? ", tagId, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }

@@ -299,7 +299,7 @@
         }
       },
       created() {
-          console.log('Component has been created!');
+          console.debug('Component has been created!');
       },
       methods: {
         getTags: function() {
@@ -355,11 +355,11 @@
             page_index: 1,
             page_size: 10
           };
-          console.log('Reloaded..!');
+          console.debug('Reloaded..!');
         }
       },
       mounted() {
-          console.log('Component has been Mounted!');
+          console.debug('Component has been Mounted!');
           this.getTags();
           this.getAccounts();
           this.getActivities();

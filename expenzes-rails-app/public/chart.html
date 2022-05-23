@@ -161,7 +161,7 @@
         for (key in element) {
           let cell = row.insertCell();
           let span = document.createElement("SPAN");
-          console.log(key, element[key]);
+          console.debug(key, element[key]);
           if (key == 'balance') {
             if (element[key] > 0) {
               span.className = 't-blue';

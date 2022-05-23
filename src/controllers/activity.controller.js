@@ -63,7 +63,8 @@ exports.update = function(req, res) {
       } else {
         res.json({
           error: false,
-          message: 'Activity successfully updated'
+          message: 'Activity successfully updated',
+          data: activity
         });
       }
     });
@@ -78,7 +79,8 @@ exports.delete = function(req, res) {
     } else {
       res.json({
         error: false,
-        message: 'Activity successfully deleted'
+        message: 'Activity successfully deleted',
+        data: activity
       });
     }
   });
@@ -102,7 +104,8 @@ exports.log = function(req, res) {
       res.json({
         error: false,
         data: activity,
-        message: 'Activity logs successfully returned'
+        message: 'Activity logs successfully returned',
+        data: activity
       });
     }
   });

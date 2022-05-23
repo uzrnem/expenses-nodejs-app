@@ -14,7 +14,7 @@ Statement.create = function(newStatement, result) {
   config.con.query("INSERT INTO statements set ?", newStatement, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res.insertId);
     }
@@ -25,7 +25,7 @@ Statement.findById = function(id, result) {
   config.con.query("Select * from statements where id = ? ", id, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -36,7 +36,7 @@ Statement.findAll = function(result) {
   config.con.query(" SELECT * FROM statements ORDER BY event_date DESC  ", function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -49,7 +49,7 @@ Statement.update = function(id, statement, result) {
   function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -60,7 +60,7 @@ Statement.delete = function(id, result) {
   config.con.query("DELETE FROM statements WHERE id = ?", [id], function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -170,7 +170,7 @@ Statement.passbook = function(duration, result) {
   config.con.query(sql, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -203,12 +203,12 @@ Statement.bills = function(duration, result) {
   " ) AS passbook " +
   " GROUP BY year,mon, yrmon;";
 
-  console.log (date_condition, sql)
+  console.debug (date_condition, sql)
 
   config.con.query(sql, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }

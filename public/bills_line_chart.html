@@ -115,10 +115,10 @@
             (item['SBI'] == null ? 0: item['SBI']) + (item['ICICI'] == null ? 0: item['ICICI']) )
         ])
       })
-      console.log(arr)
+      console.debug(arr)
       var data = google.visualization.arrayToDataTable(arr);
 
-      console.log(JSON.stringify(arr))
+      console.debug(JSON.stringify(arr))
 
       var options = {
         title: 'Passbook',
@@ -135,7 +135,7 @@
 
   function newMonthSelected() {
     urlString = document.getElementById("duration-selection").value;
-    console.log(urlString);
+    console.debug(urlString);
     google.charts.setOnLoadCallback(drawChart);
   }
 </script>

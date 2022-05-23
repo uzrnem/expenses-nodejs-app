@@ -63,7 +63,8 @@ exports.update = function(req, res) {
       } else {
         res.json({
           error: false,
-          message: 'AccountType successfully updated'
+          message: 'AccountType successfully updated',
+          data: accountType
         });
       }
     });
@@ -78,7 +79,8 @@ exports.delete = function(req, res) {
     } else {
       res.json({
         error: false,
-        message: 'AccountType successfully deleted'
+        message: 'AccountType successfully deleted',
+        data: accountType
       });
     }
   });

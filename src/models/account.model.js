@@ -16,7 +16,7 @@ Account.create = function(newAccount, result) {
   config.con.query("INSERT INTO accounts set ?", newAccount, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res.insertId);
     }
@@ -27,7 +27,7 @@ Account.findById = function(id, result) {
   config.con.query("Select * from accounts where id = ? ", id, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -44,7 +44,7 @@ Account.findAll = function(allAccounts, result) {
   config.con.query("Select * from accounts " + condition, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -55,7 +55,7 @@ Account.frequent = function(result) {
   config.con.query("Select * from accounts WHERE is_closed = 0 AND is_frequent = 1 ORDER BY name ASC", function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -68,7 +68,7 @@ Account.findByType = function(account_type, result) {
   config.con.query(sql, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -82,7 +82,7 @@ Account.update = function(id, account, result) {
     function(err, res) {
       if (err) {
         console.error("error: ", err);
-        result(null, err);
+        result({error: err.sqlMessage}, null);
       } else {
         result(null, res);
       }
@@ -93,7 +93,7 @@ Account.delete = function(id, result) {
   config.con.query("DELETE FROM accounts WHERE id = ?", [id], function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -123,7 +123,7 @@ Account.share = function(result) {
       var total = 0.0
       var ccBill = 0
       var loan = 0.0
-      console.log(holding_balance)
+      console.debug(holding_balance)
       holding_array = [['Account', 'Amount per Account']]
       holding_balance.forEach((item, i) => {
         if (item['Account'] == 'Credit') {
@@ -141,12 +141,12 @@ Account.share = function(result) {
         }
       });
       delete ccBills['CC Bill']
-      console.log('total: ', total, 'Loan: ', loan, 'cc bill: ', ccBill)
+      console.debug('total: ', total, 'Loan: ', loan, 'cc bill: ', ccBill)
       cc_array = [['Account', 'Amount per Account']]
       cc_array.push(['Loan', loan])
       cc_array.push(['CC Bill', ccBill])
       cc_array.push(['Balance', total])
-      creditLimit = 451000-loan-ccBill-total
+      creditLimit = 600000-loan-ccBill-total
       cc_array.push(['Credit Limit', creditLimit > 0 ? creditLimit: 0])
       result(null, { holding: holding_array, balance: account_balance, totalBalance: cc_array });
     } finally {

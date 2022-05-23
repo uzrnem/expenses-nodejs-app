@@ -17,7 +17,7 @@ var defaultConfig = {
 };
 
 module.exports = {
-	DATABASE : getEnv(database_name) || defaultConfig.database_name,
+	DATABASE: getEnv(database_name) || defaultConfig.database_name,
 	USER: getEnv(user_name) || defaultConfig.user_name,
 	PASSWORD: getEnv(user_pass) || defaultConfig.user_pass,
 	HOST: getEnv(host_name) || defaultConfig.host,

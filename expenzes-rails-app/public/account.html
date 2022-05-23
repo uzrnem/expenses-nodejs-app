@@ -201,7 +201,7 @@
         accountTypes: []
       },
       created() {
-          console.log('Component has been created!');
+          console.debug('Component has been created!');
       },
       methods: {
         save: function() {
@@ -216,14 +216,12 @@
         getAccounts: function() {
           axios.get('/accounts?all_accounts=true')
           .then((response) => {
-            console.log(response);
             this.accounts = response.data;
           });
         },
         getAccountTypes: function() {
           axios.get('/account_types')
           .then((response) => {
-            console.log(response);
             var res = response.data;
             for (const item in res) {
               this.accountTypes[res[item].id] = res[item].name;
@@ -242,7 +240,7 @@
         }
       },
       mounted() {
-        console.log('Component has been Mounted!');
+        console.debug('Component has been Mounted!');
         this.getAccountTypes();
         this.getAccounts();
       }

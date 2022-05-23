@@ -185,7 +185,7 @@
         for (key in element) {
           let cell = row.insertCell();
           let span = document.createElement("SPAN");
-          //console.log(key, element[key]);
+          //console.debug(key, element[key]);
           if (key == 'balance') {
             span.className = 'pull-right';
             if (element[key] > 0) {

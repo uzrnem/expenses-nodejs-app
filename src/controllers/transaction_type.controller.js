@@ -63,7 +63,8 @@ exports.update = function(req, res) {
       } else {
         res.json({
           error: false,
-          message: 'TransactionType successfully updated'
+          message: 'TransactionType successfully updated',
+          data: transactionType
         });
       }
     });
@@ -78,7 +79,8 @@ exports.delete = function(req, res) {
     } else {
       res.json({
         error: false,
-        message: 'TransactionType successfully deleted'
+        message: 'TransactionType successfully deleted',
+        data: transactionType
       });
     }
   });

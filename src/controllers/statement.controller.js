@@ -96,7 +96,8 @@ exports.update = function(req, res) {
       } else {
         res.json({
           error: false,
-          message: 'Statement successfully updated'
+          message: 'Statement successfully updated',
+          data: statement
         });
       }
     });
@@ -111,7 +112,8 @@ exports.delete = function(req, res) {
     } else {
       res.json({
         error: false,
-        message: 'Statement successfully deleted'
+        message: 'Statement successfully deleted',
+        data: statement
       });
     }
   });

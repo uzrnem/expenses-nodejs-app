@@ -16,7 +16,7 @@ Passbook.create = function(newPassbook, result) {
   config.con.query("INSERT INTO passbooks set ?", newPassbook, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res.insertId);
     }
@@ -26,7 +26,7 @@ Passbook.findById = function(id, result) {
   config.con.query("Select * from passbooks where id = ? ", id, function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -36,7 +36,7 @@ Passbook.findAll = function(result) {
   config.con.query("Select * from passbooks", function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(err, null);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -49,7 +49,7 @@ Passbook.update = function(id, passbook, result) {
     function(err, res) {
       if (err) {
         console.error("error: ", err);
-        result(null, err);
+        result({error: err.sqlMessage}, null);
       } else {
         result(null, res);
       }
@@ -59,7 +59,7 @@ Passbook.delete = function(id, result) {
   config.con.query("DELETE FROM passbooks WHERE id = ?", [id], function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }
@@ -83,7 +83,7 @@ Passbook.accounts = function(id, result) {
   config.con.query( sql + id + ' ORDER BY `t`.`event_date` DESC, `p`.`id` DESC LIMIT 15', function(err, res) {
     if (err) {
       console.error("error: ", err);
-      result(null, err);
+      result({error: err.sqlMessage}, null);
     } else {
       result(null, res);
     }

@@ -63,7 +63,8 @@ exports.update = function(req, res) {
       } else {
         res.json({
           error: false,
-          message: 'Passbook successfully updated'
+          message: 'Passbook successfully updated',
+          data: passbook
         });
       }
     });
@@ -78,7 +79,8 @@ exports.delete = function(req, res) {
     } else {
       res.json({
         error: false,
-        message: 'Passbook successfully deleted'
+        message: 'Passbook successfully deleted',
+        data: passbook
       });
     }
   });
