@@ -128,7 +128,7 @@
       </div>
       <div class="col-sm-12">
         <h4 v-if="isEditFormOpen">Edit Transaction</h4>
-        <form v-if="isEditFormOpen">
+        <form v-if="isEditFormOpen" id="editForm">
           <div class="form-row">
             <div class="form-group col-md-4">
               <label>From Account</label>
@@ -182,7 +182,7 @@
               <label>Options</label>
               <div>
                 <a class="btn btn-info" v-on:click="editRecordConfirm()">Update</a>
-                <a class="btn btn-warning" v-on:click="cancelEditRecord()">Cancel</a>
+                <a class="btn btn-warning" v-on:click="cancelEditRecord()" :href="'#item_' + editModel.id">Cancel</a>
               </div>
             </div>
             <div class="form-group col-md-3">
@@ -273,7 +273,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(passbook, i) in activities.list">
+            <tr v-for="(passbook, i) in activities.list" :id="'item_' + passbook.id">
               <td></td>
               <td>
                 <p v-bind:class="[passbook.transaction_type === 'Income' ? 't-green' : 't-blue']">{{passbook.from_account || 'Credit'}}</p>
@@ -291,25 +291,37 @@
               </td>
               <td>
                 <p class="t-orange">{{passbook.tag}} : {{passbook.sub_tag}}</p>
-                <span class="t-blue-green">{{passbook.remarks}}</span>
+                <span class="t-blue-green" v-if="passbook.remarks && passbook.remarks.length < 43">{{passbook.remarks}}</span>
+                <span class="t-blue-green" v-if="passbook.remarks && passbook.remarks.length > 42" :title="passbook.remarks">{{passbook.remarks.substring(0,40)}}...</span>
               </td>
               <td>
                 <span class="ml-auto t-high-blue pull-right">{{passbook.event_date}}</span>
               </td>
-              <td>
-                <div style="width: 100%; height: 1.5em;">
-                  <p v-if="passbook.transaction_type === 'Transfer'" class="pull-right t-blue ">{{format.format(passbook.amount)}}</p>
-                  <p v-else-if="passbook.transaction_type === 'Income'" class="pull-right t-green positive-balance-amount">{{format.format(passbook.amount)}}</p>
-                  <p v-else class="pull-right t-red negative-balance-amount">{{format.format(passbook.amount)}}</p>
-                </div>
-                <div style="width: 100%; height: 1.5em;">
-                  <p class="pull-right t-orange" style="cursor: pointer;" @click="editRecord(passbook)">Edit?</p>
-                </div>
+              <td style="position: relative;">
+                <p class="pull-right">
+                  <span v-if="passbook.transaction_type === 'Transfer'" class="t-blue">{{format.format(passbook.amount)}}</span>
+                  <span v-else-if="passbook.transaction_type === 'Income'" class="t-green positive-balance-amount">{{format.format(passbook.amount)}}</span>
+                  <span v-else class="t-red negative-balance-amount">{{format.format(passbook.amount)}}</span>
+                  <a @click="editRecord(passbook)" style="cursor: pointer;fill: rgb(2, 83, 59);" href="#editForm">
+                    <!-- img style="height: 1rem;width: 1rem;" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNy4xMjcgMjIuNTYybC03LjEyNyAxLjQzOCAxLjQzOC03LjEyOCA1LjY4OSA1LjY5em0xLjQxNC0xLjQxNGwxMS4yMjgtMTEuMjI1LTUuNjktNS42OTItMTEuMjI3IDExLjIyNyA1LjY4OSA1LjY5em05Ljc2OC0yMS4xNDhsLTIuODE2IDIuODE3IDUuNjkxIDUuNjkxIDIuODE2LTIuODE5LTUuNjkxLTUuNjg5eiIvPjwvc3ZnPg==" -->
+                    <!-- svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 17 17"><path d="M7.127 22.562l-7.127 1.438 1.438-7.128 5.689 5.69zm1.414-1.414l11.228-11.225-5.69-5.692-11.227 11.227 5.689 5.69zm9.768-21.148l-2.816 2.817 5.691 5.691 2.816-2.819-5.691-5.689z"/></svg -->
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 512 512" style="position:absolute;bottom:5px;right:-10px;height:1.5rem;enable-background:new 0 0 512 512;" xml:space="preserve">
+                      <polygon style="fill:#FBB429;" points="60.299,357.12 34.768,430.851 81.149,477.232 154.88,451.7 452.669,153.911 358.089,59.33   "/>
+                      <path style="fill:#FF757C;" d="M400.931,16.487L358.089,59.33l94.581,94.581l42.842-42.842c8.404-8.404,8.404-22.03,0-30.434  l-64.147-64.147C422.961,8.084,409.335,8.084,400.931,16.487z"/>
+                      <polygon style="fill:#847C7C;" points="10.199,501.8 81.149,477.232 34.768,430.851 "/>
+                      <g>
+                        <path style="fill:#4D4D4D;" d="M53.087,349.907c-1.091,1.091-1.921,2.416-2.425,3.875l-50.1,144.68   c-1.278,3.691-0.336,7.788,2.425,10.55C4.932,510.957,7.539,512,10.201,512c1.118,0,2.245-0.184,3.336-0.562l144.681-50.1   c1.459-0.505,2.783-1.335,3.875-2.425l340.631-340.631c12.367-12.368,12.367-32.491,0-44.859L438.577,9.275   c-12.367-12.367-32.49-12.367-44.857,0l0,0L53.087,349.907z M65.104,374.415l72.481,72.481l-53.739,18.609l-37.351-37.351   L65.104,374.415z M26.711,485.288l12.364-35.705l23.342,23.342L26.711,485.288z M155.848,436.308l-50.783-50.783l125.381-125.381   c3.983-3.983,3.983-10.441,0-14.425c-3.983-3.982-10.441-3.982-14.425,0L90.641,371.101l-14.948-14.948L358.089,73.755   l40.078,40.078l40.078,40.078L155.848,436.308z M488.299,103.856l-35.63,35.63L372.513,59.33l35.63-35.631   c4.414-4.414,11.597-4.414,16.01,0l64.147,64.147C492.714,92.259,492.714,99.443,488.299,103.856z"/>
+                        <path style="fill:#4D4D4D;" d="M254.269,207.472l-14.279,14.279c-3.983,3.983-3.983,10.441,0,14.425   c1.992,1.991,4.602,2.987,7.212,2.987c2.61,0,5.221-0.997,7.212-2.987l14.279-14.279c3.983-3.983,3.983-10.441,0-14.425   C264.711,203.49,258.253,203.49,254.269,207.472z"/>
+                      </g>
+                    </svg>
+                  </a>
+                </p>
+                <!-- p class="pull-right t-orange" style="cursor: pointer;">Edit?</p -->
               </td>
               <td></td>
             </tr>
             <tr>
-              <td colspan="7" v-if="activities.length == 0">
+              <td colspan="7" v-if="activities.list && activities.list.length == 0">
                 <p class="t-blue text-center">No Records Found!</p>
               </td>
             </tr>
@@ -336,11 +348,8 @@
         </nav>
       </div>
 
-      <div class="col-sm-2">
-      </div>
-
-      <div class="col-sm-6">
-        <nav class="bulma bulma-page">
+      <div class="col-sm-8">
+        <nav class="bulma bulma-page pull-right">
           <a class="bulma-page-link" :disabled="transaction.page_index === 1"
              @click="pagePrevious()">Previous</a>
              <!-- current != final && final != 1
@@ -474,6 +483,7 @@
         editRecordConfirm: function() {
           axios.post('activities/'+this.editModel.id, this.editModel)
           .then((response) => {
+            document.getElementById('item_' + this.editModel.id).scrollIntoView();
             this.cancelDeleteRecord();
             this.cancelEditRecord();
             this.getActivities();

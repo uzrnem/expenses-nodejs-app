@@ -208,7 +208,8 @@
               </div>
               <div class="card-body" style="height: 24px;">
                 <div class="pull-left t-orange t-left">{{activity.tag}}: {{activity.sub_tag}}</div>
-                <div class="ml-auto pull-right t-blue-green font-14">{{activity.remarks}}</div>
+                <div class="ml-auto pull-right t-blue-green font-14" v-if="activity.remarks && activity.remarks.length < 43">{{activity.remarks}}</div>
+                <div class="ml-auto pull-right t-blue-green font-14" v-if="activity.remarks && activity.remarks.length > 42" :title="activity.remarks">{{activity.remarks.substring(0,40)}}...</div>
               </div>
               <div class="card-footer text-muted" style="height: 24px;">
                 <div class="ml-auto pull-right t-high-blue">{{activity.event_date}}</div>
@@ -241,7 +242,8 @@
                   </div>
                 </div>
                 <div class="card-footer text-muted" style="height: 24px;">
-                  <div class="pull-left font-14 t-blue-green">{{passbook.remarks}}</div>
+                  <div class="pull-left font-14 t-blue-green" v-if="passbook.remarks && passbook.remarks.length < 43">{{passbook.remarks}}</div>
+                  <div class="pull-left font-14 t-blue-green" v-if="passbook.remarks && passbook.remarks.length > 42" :title="passbook.remarks">{{passbook.remarks.substring(0,40)}}...</div>
                   <div class="ml-auto t-high-blue pull-right">{{passbook.event_date}}</div>
                 </div>
             </div>
