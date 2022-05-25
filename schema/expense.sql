@@ -171,6 +171,24 @@ CREATE TRIGGER `b2_after_udpate_activity` AFTER UPDATE ON `activities` FOR EACH 
       update accounts set amount = old_balance + NEW.amount, updated_at = now() where id = NEW.to_account_id;
     END IF;
   END IF;
+
+  IF (OLD.from_account_id <=> NEW.from_account_id) AND
+    (OLD.to_account_id <=> NEW.to_account_id) AND
+    NOT (OLD.amount <=> NEW.amount) THEN
+    IF OLD.from_account_id IS NOT NULL THEN
+      update passbooks set balance = balance + OLD.amount - NEW.amount, updated_at = now()
+      where activity_id = OLD.id and account_id = OLD.from_account_id;
+
+      update accounts a set amount = amount + OLD.amount - NEW.amount, updated_at = now() where id = OLD.from_account_id;
+    END IF;
+
+    IF OLD.to_account_id IS NOT NULL THEN
+      update passbooks set balance = balance - OLD.amount + NEW.amount, updated_at = now()
+      where activity_id = OLD.id and account_id = OLD.to_account_id;
+
+      update accounts a set amount = amount - OLD.amount + NEW.amount, updated_at = now() where id = OLD.to_account_id;
+    END IF;
+  END IF;
 END
 $$
 DELIMITER ;
