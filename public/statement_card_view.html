@@ -165,21 +165,23 @@
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="mainCard.bills">
                 Credit Card: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.totalBill/mainCard.salary[0].amount)*100)}} %)</span>
-                <span class="t-red pull-right">{{format.format(mainCard.totalBill)}}</span>
-                <ul class="list-group list-group-flush" v-if="mainCard.bills.length" style="font-size: small;">
-                  <li class="list-group-item p-0 t-high-blue" v-for="bill in mainCard.bills">
-                    {{bill.name}}
-                    <span class=" t-red pull-right">{{format.format(bill.bill)}}</span>
-                  </li>
-                </ul>
+                <span class="t-blue pull-right" v-if="mainCard.originExp">{{format.format(mainCard.originExp)}}</span>
+                <br  v-if="mainCard.originExp && mainCard.totalBill"/>
+                <span class="t-red pull-right" v-if="mainCard.totalBill">~ {{format.format(mainCard.totalBill)}}</span>
+              </li>
+              <li class="list-group-item p-1 t-high-blue" v-for="(bill, card) in mainCard.bills" style="font-size: small;">
+                {{card}}
+                <span class="t-blue pull-right" v-if="bill.origin">{{format.format(bill.origin)}}</span>
+                <br v-if="bill.origin && bill.statement">
+                <span class="t-red pull-right" v-if="bill.statement">~ {{format.format(bill.statement)}}</span>
               </li>
               <li class="list-group-item p-1" v-if="mainCard.expense">
-                Expense:  <span class="t-orange" v-if="mainCard.expense[0] && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.expense[0].amount/mainCard.salary[0].amount)*100)}} %)</span>
-                <span class=" t-red pull-right">{{format.format(mainCard.expense[0].amount)}}</span>
+                Expense:  <span class="t-orange" v-if="mainCard.expense && mainCard.salary" style="font-size: small;">({{parseInt((mainCard.expense/mainCard.salary)*100)}} %)</span>
+                <span class="t-red pull-right">{{format.format(mainCard.expense)}}</span>
               </li>
               <li class="list-group-item p-1" v-if="mainCard.salary">
                 Salary: 
-                <span class=" t-green pull-right">{{format.format(mainCard.salary[0].amount)}}</span>
+                <span class="t-green pull-right">{{format.format(mainCard.salary)}}</span>
               </li>
             </ul>
           </div>
@@ -192,22 +194,24 @@
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="st.bill">
                 Credit Card: <span class="t-orange" v-if="st.billPercent" style="font-size: small;">({{st.billPercent}} %)</span>
-                <span class=" t-red pull-right">{{format.format(st.bill)}}</span>
-                <ul class="list-group list-group-flush" v-if="st.bills.length" style="font-size: small;">
-                  <li class="list-group-item p-0 t-high-blue" v-for="bill in st.bills">
-                    {{bill.card}}
-                    <span class=" t-red pull-right">{{format.format(bill.bill)}}</span>
-                    <span class="t-orange">{{bill.remarks}}</span>
-                  </li>
-                </ul>
+                <span class="t-blue pull-right" v-if="st.originExp">{{format.format(st.originExp)}}</span>
+                <br v-if="st.originExp && st.bill" />
+                <span class="t-red pull-right" v-if="st.bill">~ {{format.format(st.bill)}}</span>
+              </li>
+              <li class="list-group-item p-1 t-high-blue" v-for="(bill, card) in st.bills" style="font-size: small;">
+                {{card}}
+                <span class="t-blue pull-right" v-if="bill.origin">{{format.format(bill.origin)}}</span>
+                <br v-if="bill.origin && bill.statement" />
+                <span class="t-red pull-right" v-if="bill.statement">~ {{format.format(bill.statement)}}</span>
+                <span class="t-orange">{{bill.remarks}}</span>
               </li>
               <li class="list-group-item p-1" v-if="st.expense">
                 Expense:  <span class="t-orange" v-if="st.expensePercent" style="font-size: small;">({{st.expensePercent}} %)</span>
-                <span class=" t-red pull-right">{{format.format(st.expense)}}</span>
+                <span class="t-red pull-right">{{format.format(st.expense)}}</span>
               </li>
               <li class="list-group-item p-1" v-if="st.salary">
                 Salary: 
-                <span class=" t-green pull-right">{{format.format(st.salary)}}</span>
+                <span class="t-green pull-right">{{format.format(st.salary)}}</span>
               </li>
             </ul>
           </div>
@@ -299,38 +303,70 @@
         getMonthlyStatement: function(duration) {
           axios.get('/statements/monthly/'+duration)
           .then((response) => {
-            var totalBill = 0
-            response.data.bills.forEach((bill, billI) => {
-              totalBill += bill.bill
-            })
-            console.debug(totalBill)
             this.mainCard = {
-              title: ['some'],
-              totalBill: totalBill,
-              bills: response.data.bills,
-              expense: response.data.expense,
-              salary: response.data.salary
+              totalBill: 0,
+              bills: {},
+              expense: 0,
+              salary: 0,
+              originExp: 0
             }
-            var res = response.data.result;
+            var res = response.data;
             var arr = [];
             res.forEach((item, index) => {
-              var bills = []
+              this.mainCard.expense += item.expense
+              this.mainCard.salary += item.salary
+              console.log(item)
+              var bills = {}
+              var originExp = 0
               if (item.bill != null) {
+                //Statement amount
                 var cards = item.credit.split(',');
                 console.debug("cards: ", cards)
                 cards.forEach((card, cardI) => {
-                  console.debug("card: ", card)
-                  var bill = card.split(':');
-                  bills.push({
-                    card: bill[0],
-                    bill: bill[1],
-                    remarks: bill[2]
-                  })
+                  var [cName, cStatement, cRemarks] = this.getCardNameAndExpense(card);
+                  bills[cName] = {
+                    statement: cStatement,
+                    remarks: cRemarks,
+                    origin: 0
+                  }
+                  if (this.mainCard.bills && this.mainCard.bills[cName]) {
+                    this.mainCard.bills[cName].statement += cStatement
+                  } else {
+                    this.mainCard.bills[cName] = {
+                      statement: cStatement,
+                      origin: 0
+                    }
+                  }
+                  this.mainCard.totalBill += cStatement
                 })
-                console.debug(bills)
+
+                //Real Expense monthly amount
+                var cards = item.r_cc.split(',');
+                cards.forEach((card, cardI) => {
+                  var [cName, cOrigin] = this.getCardNameAndExpense(card);
+                  originExp += cOrigin
+                  this.mainCard.originExp += cOrigin
+                  if (bills && bills[cName]) {
+                    bills[cName].origin = cOrigin
+                  } else {
+                    bills[cName] = {
+                      statement: 0,
+                      origin: cOrigin
+                    }
+                  }
+                  if (this.mainCard.bills && this.mainCard.bills[cName]) {
+                    this.mainCard.bills[cName].origin += cOrigin
+                  } else {
+                    this.mainCard.bills[cName] = {
+                      statement: 0,
+                      origin: cOrigin
+                    }
+                  }
+                })
+                item.originExp = originExp
                 item.bills = bills
                 if (item.salary != null) {
-                  item.billPercent = parseInt((item.bill/item.salary)*100)
+                  item.billPercent = parseInt((item.originExp/item.salary)*100)
                 }
               }
               if (item.expense != null & item.salary != null) {
@@ -339,8 +375,11 @@
               arr.push(item)
             });
             this.monthlyStatements = arr
-            console.debug(this.monthlyStatements);
           });
+        },
+        getCardNameAndExpense: function(item) {
+          var bill = item.split(':');
+          return [bill[0], parseInt(bill[1] || "0"), bill[2] || ""]
         },
         getAccounts: function() {
           axios.get('/accounts/type/Credit')

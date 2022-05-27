@@ -67,62 +67,61 @@ Statement.delete = function(id, result) {
   });
 };
 
-async function getTransactionDone(sql, income_query, bill_query, expense_query, result) {
-  var res = {
-    result: [],
-    expense: 0,
-    salary: 0,
-    bills: []
-  }
+async function getTransactionDone(sql, result) {
   try {
-    res.result = await config.query (sql);
-    res.expense = await config.query (expense_query);
-    res.salary = await config.query (income_query);
-    res.bills = await config.query (bill_query);
-    result(null, res);
+    result(null, await config.query (sql));
   } catch (error) {
     result(error, null);
   }
 }
 
 Statement.monthly = function(duration, result) {
-  var date_condition = " event_date > DATE_SUB(now(), INTERVAL "+duration+" YEAR) "
+  //var old_date_condition = " event_date > DATE_SUB(now(), INTERVAL "+duration+" YEAR) "
+  var date_condition = " event_date > MAKEDATE( YEAR( DATE_SUB(now(), INTERVAL "+duration+" YEAR) ), DAYOFYEAR( DATE_SUB(now(), INTERVAL DAYOFMONTH(now()) DAY ) ) + 1 ) "
   var and_date_condition = ""
   var where_date_condition = ""
   if (duration > 0) {
     and_date_condition = " and"+date_condition
     where_date_condition = " where"+date_condition
+    console.log("and_date_condition: ", and_date_condition)
   }
-  var sql = "SELECT c.year, c.mon, SUM(a.amount) AS salary, COUNT(a.amount) AS count, SUM(e.amount) AS expense, GROUP_CONCAT(t.cc) as credit, SUM(t.bill) as bill " +
+  var sql = "SELECT yrmn.year, yrmn.mon, SUM(salr.amount) AS salary, COUNT(salr.amount) AS count, " +
+  " SUM(exps.amount) AS expense, GROUP_CONCAT(stmn.cc) as credit, SUM(stmn.bill) as bill, " +
+  " GROUP_CONCAT(ccexp.exp) as r_cc " +
   "FROM ( " +
   "    SELECT DISTINCT YEAR(event_date) AS year, MONTHNAME(event_date) AS mon, " +
   "        EXTRACT(YEAR_MONTH From event_date) AS yearmonth " +
   "    FROM activities " + where_date_condition +
   "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date), YEAR(event_date), MONTHNAME(event_date) " +
-  ") c " +
+  ") yrmn " +
   "LEFT JOIN ( " +
   "    SELECT SUM(amount) AS amount, EXTRACT(YEAR_MONTH FROM event_date) AS event_date " +
   "    FROM activities WHERE sub_tag_id IN (SELECT id FROM tags WHERE name = 'Salary') " + and_date_condition + 
   "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date) " +
-  ") a ON a.event_date = c.yearmonth " +
+  ") salr ON salr.event_date = yrmn.yearmonth " +
   "LEFT JOIN ( " +
-  "    SELECT GROUP_CONCAT(CONCAT(a.name, ':', s.amount, ':', IFNULL(s.remarks, ''))) AS cc, " +
+  "    SELECT GROUP_CONCAT(DISTINCT(CONCAT(a.name, ':', s.amount, ':', IFNULL(s.remarks, '')))) AS cc, " +
   "    	EXTRACT(YEAR_MONTH FROM s.event_date) AS event_date, SUM(s.amount) as bill " +
   "    FROM statements s LEFT JOIN accounts a ON s.account_id = a.id " + where_date_condition +
   "    GROUP BY EXTRACT(YEAR_MONTH FROM s.event_date) " +
-  ") t ON t.event_date = c.yearmonth " +
+  ") stmn ON stmn.event_date = yrmn.yearmonth " +
   "LEFT JOIN ( " +
   "    SELECT SUM(amount) AS amount, EXTRACT(YEAR_MONTH FROM event_date) AS event_date " +
   "    FROM activities WHERE transaction_type_id IN ( " + 
   "        SELECT id FROM transaction_types WHERE name = 'Expense') " + and_date_condition +
   "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date) " +
-  ") e ON e.event_date = c.yearmonth " +
-  "GROUP BY c.yearmonth, c.year, c.mon ORDER BY c.yearmonth DESC"
-
-  var income_query = "SELECT SUM(amount) AS amount FROM activities WHERE sub_tag_id IN ( SELECT id FROM tags WHERE name = 'Salary' ) " + and_date_condition
-  var bill_query = "SELECT a.name, SUM(s.amount) as bill FROM statements s LEFT JOIN accounts a ON s.account_id = a.id " + where_date_condition + " group by a.name"
-  var expense_query = "SELECT SUM(amount) AS amount FROM activities WHERE transaction_type_id IN ( SELECT id FROM transaction_types WHERE name = 'Expense' ) " + and_date_condition
-  getTransactionDone(sql, income_query, bill_query, expense_query, result)
+  ") exps ON exps.event_date = yrmn.yearmonth " +
+  "LEFT JOIN ( " +
+  "  Select GROUP_CONCAT(cc.exp) as exp, yearmonth from ( " +
+  "    SELECT concat(name, ':', sum(a.amount)) as exp, EXTRACT(YEAR_MONTH FROM event_date) as yearmonth " +
+  "    FROM `activities` a " +
+  "    LEFT JOIN accounts acc ON a.from_account_id = acc.id AND a.to_account_id IS NULL " +
+  "    WHERE acc.account_type_id IN (SELECT id FROM `account_types` WHERE name = 'Credit') " + and_date_condition +
+  "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date), acc.name " +
+  "  ) as cc GROUP BY yearmonth " +
+  ") ccexp on ccexp.yearmonth = yrmn.yearmonth " +
+  "GROUP BY yrmn.yearmonth, yrmn.year, yrmn.mon ORDER BY yrmn.yearmonth DESC"
+  getTransactionDone(sql, result)
 
 };
 
