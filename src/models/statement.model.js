@@ -87,13 +87,18 @@ Statement.monthly = function(duration, result) {
   }
   var sql = "SELECT yrmn.year, yrmn.mon, SUM(salr.amount) AS salary, COUNT(salr.amount) AS count, " +
   " SUM(exps.amount) AS expense, GROUP_CONCAT(stmn.cc) as credit, SUM(stmn.bill) as bill, " +
-  " GROUP_CONCAT(ccexp.exp) as r_cc " +
+  " GROUP_CONCAT(ccexp.exp) as r_cc, SUM(incm.amount) as income " +
   "FROM ( " +
   "    SELECT DISTINCT YEAR(event_date) AS year, MONTHNAME(event_date) AS mon, " +
   "        EXTRACT(YEAR_MONTH From event_date) AS yearmonth " +
   "    FROM activities " + where_date_condition +
   "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date), YEAR(event_date), MONTHNAME(event_date) " +
   ") yrmn " +
+  "LEFT JOIN ( " +
+  "    SELECT SUM(amount) AS amount, EXTRACT(YEAR_MONTH FROM event_date) AS event_date " +
+  "    FROM activities WHERE from_account_id is null " + and_date_condition + 
+  "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date) " +
+  ") incm ON incm.event_date = yrmn.yearmonth " +
   "LEFT JOIN ( " +
   "    SELECT SUM(amount) AS amount, EXTRACT(YEAR_MONTH FROM event_date) AS event_date " +
   "    FROM activities WHERE sub_tag_id IN (SELECT id FROM tags WHERE name = 'Salary') " + and_date_condition + 

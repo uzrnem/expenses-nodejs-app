@@ -164,7 +164,7 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="mainCard.bills">
-                Credit Card: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary[0]" style="font-size: small;">({{parseInt((mainCard.totalBill/mainCard.salary[0].amount)*100)}} %)</span>
+                Credit Card: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary" style="font-size: small;">({{parseInt((mainCard.originExp/mainCard.income)*100)}} %)</span>
                 <span class="t-blue pull-right" v-if="mainCard.originExp">{{format.format(mainCard.originExp)}}</span>
                 <br  v-if="mainCard.originExp && mainCard.totalBill"/>
                 <span class="t-red pull-right" v-if="mainCard.totalBill">~ {{format.format(mainCard.totalBill)}}</span>
@@ -176,12 +176,14 @@
                 <span class="t-red pull-right" v-if="bill.statement">~ {{format.format(bill.statement)}}</span>
               </li>
               <li class="list-group-item p-1" v-if="mainCard.expense">
-                Expense:  <span class="t-orange" v-if="mainCard.expense && mainCard.salary" style="font-size: small;">({{parseInt((mainCard.expense/mainCard.salary)*100)}} %)</span>
+                Expense:  <span class="t-orange" v-if="mainCard.expense && mainCard.salary" style="font-size: small;">({{parseInt((mainCard.expense/mainCard.income)*100)}} %)</span>
                 <span class="t-red pull-right">{{format.format(mainCard.expense)}}</span>
               </li>
               <li class="list-group-item p-1" v-if="mainCard.salary">
                 Salary: 
-                <span class="t-green pull-right">{{format.format(mainCard.salary)}}</span>
+                <span class="t-green pull-right">{{format.format(mainCard.income)}}</span>
+                <br>
+                <span class="t-red pull-right">~ {{format.format(mainCard.salary)}}</span>
               </li>
             </ul>
           </div>
@@ -211,7 +213,9 @@
               </li>
               <li class="list-group-item p-1" v-if="st.salary">
                 Salary: 
-                <span class="t-green pull-right">{{format.format(st.salary)}}</span>
+                <span class="t-green pull-right">{{format.format(st.income)}}</span>
+                <br>
+                <span class="t-blue pull-right">~ {{format.format(st.salary)}}</span>
               </li>
             </ul>
           </div>
@@ -308,13 +312,15 @@
               bills: {},
               expense: 0,
               salary: 0,
-              originExp: 0
+              originExp: 0,
+              income: 0
             }
             var res = response.data;
             var arr = [];
             res.forEach((item, index) => {
               this.mainCard.expense += item.expense
               this.mainCard.salary += item.salary
+              this.mainCard.income += item.income
               console.log(item)
               var bills = {}
               var originExp = 0
@@ -366,11 +372,11 @@
                 item.originExp = originExp
                 item.bills = bills
                 if (item.salary != null) {
-                  item.billPercent = parseInt((item.originExp/item.salary)*100)
+                  item.billPercent = parseInt((item.originExp/item.income)*100)
                 }
               }
               if (item.expense != null & item.salary != null) {
-                item.expensePercent = parseInt((item.expense/item.salary)*100)
+                item.expensePercent = parseInt((item.expense/item.income)*100)
               }
               arr.push(item)
             });

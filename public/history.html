@@ -197,8 +197,30 @@
         </form>
         <h4 v-if="isSearchFormOpen">Search Passbook Entrie</h4>
         <form v-if="isSearchFormOpen">
+          <!-- div class="form-row">
+            <div class="form-group col-3">
+              <p class=" pull-right">
+                Account
+              </p>
+            </div>
+            <div class="form-group col-3">
+              <p class=" pull-right">
+                Type
+              </p>
+            </div>
+            <div class="form-group col-3">
+              <p class=" pull-right">
+                Date
+              </p>
+            </div>
+            <div class="form-group col-3">
+              <p class=" pull-right">
+                Remark Filter
+              </p>
+            </div>
+          </div -->
           <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label>Primary Account</label>
               <select v-model="transaction.account_id" class="form-control"
                 @change="getActivities()" placeholder="Select Account">
@@ -206,7 +228,7 @@
                 <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
               </select>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label>Secondary Account</label>
               <select v-model="transaction.account_key" class="form-control"
                 @change="getActivities()" placeholder="Select Account">
@@ -214,7 +236,7 @@
                 <option v-for="account in accounts" :value="account.id">{{ account.name + " :" + account.amount }}</option>
               </select>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label>Select Transaction Type</label>
               <select v-model="transaction.transaction_type_id" class="form-control"
                 @change="getActivities()" placeholder="Select Transaction Type">
@@ -222,9 +244,7 @@
                 <option v-for="tag in transactionTypes" :value="tag.id">{{ tag.name }}</option>
               </select>
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label>Select Tag</label>
               <select v-model="transaction.tag_id" class="form-control"
                 @change="getActivities()" placeholder="Select Tag">
@@ -232,24 +252,27 @@
                 <option v-for="tag in tags" :value="tag.id">{{ tag.name }} | {{ tag.parent || 'GOD' }}</option>
               </select>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label>From Date</label>
               <input type="date" class="form-control" v-model="transaction.start_date">
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label>Till Date</label>
               <input type="date" class="form-control" v-model="transaction.end_date">
             </div>
+            <div class="form-group col-md-3">
+              <label>Action</label>
+              <p>
+                <a class="btn btn-primary" v-on:click="getActivities()">Submit</a>
+                <a class="btn btn-danger" v-on:click="clear()">Clear</a>
+              </p>
+            </div>
           </div>
           <div class="form-row">
-            <div class="form-group col-md-4">
-              <a class="btn btn-primary" v-on:click="getActivities()">Submit</a>
-            </div>
-            <div class="form-group col-md-4">
-              <a class="btn btn-danger" v-on:click="clear()">Clear</a>
-            </div>
-            <div class="form-group col-md-4">
-              <a class="btn btn-warning" v-on:click="isSearchFormOpen = false" v-if="isSearchFormOpen">Hide Search Form</a>
+            <div class="form-group col-12">
+              <p class=" pull-right">
+                <a class="btn btn-warning" v-on:click="isSearchFormOpen = false" v-if="isSearchFormOpen">Hide Search Form</a>
+              </p>
             </div>
           </div>
         </form>
