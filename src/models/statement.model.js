@@ -96,7 +96,8 @@ Statement.monthly = function(duration, result) {
   ") yrmn " +
   "LEFT JOIN ( " +
   "    SELECT SUM(amount) AS amount, EXTRACT(YEAR_MONTH FROM event_date) AS event_date " +
-  "    FROM activities WHERE from_account_id is null " + and_date_condition + 
+  "    FROM activities WHERE from_account_id is null AND transaction_type_id IN ( " + 
+  "        SELECT id FROM transaction_types WHERE name = 'Income')" + and_date_condition + 
   "    GROUP BY EXTRACT(YEAR_MONTH FROM event_date) " +
   ") incm ON incm.event_date = yrmn.yearmonth " +
   "LEFT JOIN ( " +

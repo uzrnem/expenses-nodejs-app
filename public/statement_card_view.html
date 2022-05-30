@@ -211,11 +211,12 @@
                 Expense:  <span class="t-orange" v-if="st.expensePercent" style="font-size: small;">({{st.expensePercent}} %)</span>
                 <span class="t-red pull-right">{{format.format(st.expense)}}</span>
               </li>
-              <li class="list-group-item p-1" v-if="st.salary">
+              <li class="list-group-item p-1">
                 Salary: 
-                <span class="t-green pull-right">{{format.format(st.income)}}</span>
-                <br>
-                <span class="t-blue pull-right">~ {{format.format(st.salary)}}</span>
+                <span class="t-green pull-right" v-if="st.income > 0">{{format.format(st.income)}}</span>
+                <span class="t-green pull-blue" v-else>Unpaid</span>
+                <br v-if="st.salary != st.income && st.salary > 0">
+                <span class="t-blue pull-right" v-if="st.salary != st.income && st.salary > 0">~ {{format.format(st.salary)}}</span>
               </li>
             </ul>
           </div>
@@ -346,29 +347,31 @@
                   this.mainCard.totalBill += cStatement
                 })
 
-                //Real Expense monthly amount
-                var cards = item.r_cc.split(',');
-                cards.forEach((card, cardI) => {
-                  var [cName, cOrigin] = this.getCardNameAndExpense(card);
-                  originExp += cOrigin
-                  this.mainCard.originExp += cOrigin
-                  if (bills && bills[cName]) {
-                    bills[cName].origin = cOrigin
-                  } else {
-                    bills[cName] = {
-                      statement: 0,
-                      origin: cOrigin
+                if (item.r_cc && item.r_cc != "") {
+                  //Real Expense monthly amount
+                  var cards = item.r_cc.split(',');
+                  cards.forEach((card, cardI) => {
+                    var [cName, cOrigin] = this.getCardNameAndExpense(card);
+                    originExp += cOrigin
+                    this.mainCard.originExp += cOrigin
+                    if (bills && bills[cName]) {
+                      bills[cName].origin = cOrigin
+                    } else {
+                      bills[cName] = {
+                        statement: 0,
+                        origin: cOrigin
+                      }
                     }
-                  }
-                  if (this.mainCard.bills && this.mainCard.bills[cName]) {
-                    this.mainCard.bills[cName].origin += cOrigin
-                  } else {
-                    this.mainCard.bills[cName] = {
-                      statement: 0,
-                      origin: cOrigin
+                    if (this.mainCard.bills && this.mainCard.bills[cName]) {
+                      this.mainCard.bills[cName].origin += cOrigin
+                    } else {
+                      this.mainCard.bills[cName] = {
+                        statement: 0,
+                        origin: cOrigin
+                      }
                     }
-                  }
-                })
+                  })
+                }
                 item.originExp = originExp
                 item.bills = bills
                 if (item.salary != null) {
