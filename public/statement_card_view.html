@@ -164,27 +164,23 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="mainCard.bills">
-                Credit Card: <span class="t-orange" v-if="mainCard.totalBill && mainCard.salary" style="font-size: small;">({{parseInt((mainCard.originExp/mainCard.income)*100)}} %)</span>
-                <span class="t-blue pull-right" v-if="mainCard.originExp">{{format.format(mainCard.originExp)}}</span>
-                <br  v-if="mainCard.originExp && mainCard.totalBill"/>
-                <span class="t-red pull-right" v-if="mainCard.totalBill">~ {{format.format(mainCard.totalBill)}}</span>
+                <amount-statement name="Credit Card: " :percentage="parseInt((mainCard.originExp/mainCard.income)*100)"
+                  original-color="t-blue" :original="mainCard.originExp"
+                  statement-color="t-red" :statement="mainCard.totalBill" ></amount-statement>
               </li>
               <li class="list-group-item p-1 t-high-blue" v-for="(bill, card) in mainCard.bills" style="font-size: small;">
-                {{card}}
-                <span class="t-blue pull-right" v-if="bill.origin">{{format.format(bill.origin)}}</span>
-                <br v-if="bill.origin && bill.statement">
-                <span class="t-red pull-right" v-if="bill.statement">~ {{format.format(bill.statement)}}</span>
+                <amount-statement :name="card"
+                  original-color="t-blue" :original="bill.origin"
+                  statement-color="t-red" :statement="bill.statement" ></amount-statement>
               </li>
               <li class="list-group-item p-1" v-if="mainCard.expense">
-                Expense:  <span class="t-orange" v-if="mainCard.expense && mainCard.salary" style="font-size: small;">({{parseInt((mainCard.expense/mainCard.income)*100)}} %)</span>
-                <span class="t-red pull-right">{{format.format(mainCard.expense)}}</span>
+                <amount-statement name="Expense:" :percentage="parseInt((mainCard.expense/mainCard.income)*100)"
+                  original-color="t-red" :original="mainCard.expense" ></amount-statement>
               </li>
               <li class="list-group-item p-1" v-if="mainCard.salary">
-                Salary: 
-                <span class="t-green pull-right">{{format.format(mainCard.income)}}</span>
-                <br>
-                <span class="t-red pull-right">~ {{format.format(mainCard.salary)}}</span>
-              </li>
+                <amount-statement name="Salary:"
+                  original-color="t-green" :original="mainCard.income"
+                  statement-color="t-blue" :statement="mainCard.salary" ></amount-statement>
             </ul>
           </div>
         </div>
@@ -195,28 +191,23 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               <li class="list-group-item p-1" v-if="st.bill">
-                Credit Card: <span class="t-orange" v-if="st.billPercent" style="font-size: small;">({{st.billPercent}} %)</span>
-                <span class="t-blue pull-right" v-if="st.originExp">{{format.format(st.originExp)}}</span>
-                <br v-if="st.originExp && st.bill" />
-                <span class="t-red pull-right" v-if="st.bill">~ {{format.format(st.bill)}}</span>
+                <amount-statement name="Credit Card: " :percentage="st.billPercent"
+                  original-color="t-blue" :original="st.originExp"
+                  statement-color="t-red" :statement="st.bill" ></amount-statement>
               </li>
               <li class="list-group-item p-1 t-high-blue" v-for="(bill, card) in st.bills" style="font-size: small;">
-                {{card}}
-                <span class="t-blue pull-right" v-if="bill.origin">{{format.format(bill.origin)}}</span>
-                <br v-if="bill.origin && bill.statement" />
-                <span class="t-red pull-right" v-if="bill.statement">~ {{format.format(bill.statement)}}</span>
-                <span class="t-orange">{{bill.remarks}}</span>
+                <amount-statement :name="card" :remark="bill.remarks"
+                  original-color="t-blue" :original="bill.origin"
+                  statement-color="t-red" :statement="bill.statement" ></amount-statement>
               </li>
               <li class="list-group-item p-1" v-if="st.expense">
-                Expense:  <span class="t-orange" v-if="st.expensePercent" style="font-size: small;">({{st.expensePercent}} %)</span>
-                <span class="t-red pull-right">{{format.format(st.expense)}}</span>
+                <amount-statement name="Expense:" :percentage="st.expensePercent"
+                  original-color="t-red" :original="st.expense" ></amount-statement>
               </li>
               <li class="list-group-item p-1">
-                Salary: 
-                <span class="t-green pull-right" v-if="st.income > 0">{{format.format(st.income)}}</span>
-                <span class="t-green pull-blue" v-else>Unpaid</span>
-                <br v-if="st.salary != st.income && st.salary > 0">
-                <span class="t-blue pull-right" v-if="st.salary != st.income && st.salary > 0">~ {{format.format(st.salary)}}</span>
+                <amount-statement name="Salary:"
+                  original-color="t-green" :original="st.income"
+                  statement-color="t-blue" :statement="st.salary" ></amount-statement>
               </li>
             </ul>
           </div>
@@ -265,6 +256,37 @@
 </body>
 
   <script>
+    var amountStatement = Vue.component('amount-statement', {
+      data: function() {//() {
+        return {
+          format: new Intl.NumberFormat(
+            'en-IN', 
+            { style: 'currency', currency: 'INR' }
+          )
+        }
+      },
+      methods: {
+        addThing: function() {
+        }
+      },
+      props: //['name', 'original', 'statement', 'percentage', 'remark', 'originalColor', 'statementColor']
+      {
+        name: { type: String, required: true},
+        original: { type: [Number, String]},
+        statement: { type: [Number, String]},
+        remark: { type: String},
+        originalColor: { type: String },
+        statementColor: { type: String }
+      },
+      template: '<div>{{name}} <span class="t-orange" v-if="percentage" style="font-size: small;">({{percentage}} %)</span>'+
+        '<span class="pull-right" :class="originalColor" v-if="original" :title="format.format(statement)">{{format.format(original)}}</span>' +
+        '<br v-if="original && statement" /> ' +
+        '<span v-if="!original || ( statement && ( (original/statement) > 1.05 || (original/statement) < 0.95 ) )" ' +
+          ' class="pull-right" :class="statementColor">~ {{format.format(statement)}}</span>' +
+        '<span class="t-orange" v-if="remark">{{remark}}</span>' +
+      '</div>'
+    })
+
     var app = new Vue({
       el: '#transaction-app',
       data: {
@@ -431,7 +453,8 @@
         console.debug('Component has been Mounted!');
         this.clear();
         this.getAccounts();
-      }
+      },
+      components: { amountStatement }
     });
   </script>
 </html>

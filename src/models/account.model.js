@@ -146,8 +146,8 @@ Account.share = function(result) {
       cc_array.push(['Loan', loan])
       cc_array.push(['CC Bill', ccBill])
       cc_array.push(['Balance', total])
-      creditLimit = 600000-loan-ccBill-total
-      cc_array.push(['Credit Limit', creditLimit > 0 ? creditLimit: 0])
+      //creditLimit = 600000-loan-ccBill-total
+      //cc_array.push(['Credit Limit', creditLimit > 0 ? creditLimit: 0])
       result(null, { holding: holding_array, balance: account_balance, totalBalance: cc_array });
     } finally {
     }
